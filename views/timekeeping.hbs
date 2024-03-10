@@ -1,0 +1,115 @@
+<div class="row">
+  <div class="col-md-3 grid-margin stretch-card">
+    <div class="card card-primary">
+      <div class="card-body">
+        <p class="fw-bold mb-4">
+          Mar 1, 2024
+        </p>
+        <p class="fs-30 fw-bold">
+          REG
+        </p>
+        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-calendar-event"></i> Select Day</button>
+        <button class="btn btn-sm btn-outline-primary">Edit Day Type</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <p class="mb-4">
+          Total Hours
+        </p>
+        <p class="fs-30 mb-2 fw-bold">
+          2 hrs
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <p class="mb-4">
+          Total Overtime Hours
+        </p>
+        <p class="fs-30 mb-2 fw-bold">
+          2 hrs
+        </p>
+      </div>
+    </div>
+  </div>
+    <div class="col-md-3 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <p class="mb-4">
+          Total Night Differential Hours
+        </p>
+        <p class="fs-30 mb-2 fw-bold">
+          2 hrs
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-3">
+    <form class="">
+      <input type="text" class="form-control form-control-sm" placeholder="🔎︎ Search for Employee">
+    </form>
+  </div>
+  <div class="col-sm-2 px-0">
+    <div class="dropdown">
+      <button class="btn btn-dark btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Department </button> 
+      <div class="dropdown-menu">
+        <a class="dropdown-item">test1</a>
+        <a class="dropdown-item">test2</a>
+        <a class="dropdown-item">test3</a>
+        <a class="dropdown-item">test4</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-7 text-end">
+    <button class="btn btn-primary btn-sm" type="button"><i class="bi bi-file-earmark-spreadsheet-fill"></i> Import CSV</button> 
+    <button class="btn btn-primary btn-sm" type="button"><i class="bi bi-ui-checks"></i> Approve All</button> 
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <th scope="col">ID</th>
+              <th scope="col">Employee</th>
+              <th scope="col">Branch</th>
+              <th scope="col">Start Time</th>
+              <th scope="col">End Time</th>
+              <th scope="col">Overtime Hrs</th>
+              <th scope="col">ND Hrs</th>
+              <th scope="col">Total Hrs</th>
+              <th scope="col">Actions</th>
+            </thead>
+            <tbody>
+              {{#each rows }}
+              <tr>
+                <td scope="row">{{this.emp_id}}</td>
+                <td>{{this.name}}</td>
+                <td>{{this.department}}</td>
+                <td>{{this.position}}</td>
+                <td>{{this.address}}</td>
+                <td>{{this.contact}}</td>
+                <td>{{this.email}}</td>
+                <td>{{this.date_hired}}</td>
+                <td>
+                  <a type="button" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i> View Profile</a>
+                </td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
