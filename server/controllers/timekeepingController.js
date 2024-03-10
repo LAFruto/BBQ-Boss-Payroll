@@ -12,3 +12,7 @@ const pool = mysql.createPool({
 exports.view = (req, res) => {
     res.render("timekeeping");
 };
+
+exports.form = (req, res) => {
+    res.render('add-timesheet')
+};

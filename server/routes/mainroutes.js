@@ -28,9 +28,9 @@ router.get('/employee/add-employee', employeeController.form)
 // PAYROLL ROUTES
 router.get('/payroll', payrollController.view)
 
-
 // TIMEKEEPING ROUTES
 router.get('/timekeeping', timekeepingController.view)
+router.get('/timekeeping/add-timesheet', timekeepingController.form)
 
 // LEAVES ROUTES
 router.get('/leaves', leavesController.view)
