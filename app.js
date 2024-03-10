@@ -2,6 +2,7 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const flatpickr = require("flatpickr");
 const mysql = require('mysql');
 
 require('dotenv').config();

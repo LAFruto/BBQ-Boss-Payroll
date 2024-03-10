@@ -12,3 +12,7 @@ const pool = mysql.createPool({
 exports.view = (req, res) => {
     res.render("payroll");
 };
+
+exports.form = (req, res) => {
+    res.render('convert-mbos');
+  };
