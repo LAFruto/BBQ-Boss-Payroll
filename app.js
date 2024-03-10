@@ -1,6 +1,7 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 const mysql = require('mysql');
 
 require('dotenv').config();
@@ -14,6 +15,14 @@ app.use(bodyParser.urlencoded({ extended: false}));
 
 // Parse application/json
 app.use(bodyParser.json());
+
+// Session middleware
+app.use(session({
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: true
+}));
+
 
 // Static files
 app.use(express.static('public'));

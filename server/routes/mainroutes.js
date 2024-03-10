@@ -38,4 +38,5 @@ router.get('/leaves', leavesController.view)
 // SETTINGS ROUTES
 router.get('/settings', settingsController.view)
 
+
 module.exports = router;

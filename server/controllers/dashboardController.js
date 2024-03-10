@@ -10,5 +10,12 @@ const pool = mysql.createPool({
 });
 
 exports.view = (req, res) => {
-    res.render("dashboard");
+    console.log(req.session)
+    if (req.session.user && req.session.account_type === 'admin') {
+        res.render("dashboard");
+    } else if (req.session.user && req.session.account_type === 'viewer') {
+        res.render("dashboard");
+    } else {
+        res.redirect('/')
+    }
 };

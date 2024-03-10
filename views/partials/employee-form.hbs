@@ -2,88 +2,241 @@
   <div class="card">
     <div class="card-body">
       <h4 class="card-title">Add Employee</h4>
-      <h4 class="card-description fs-">Personal Info</h4>
       <form class="form-sample">
+        <p class="card-description fs-">Personal Info</p>
         <div class="row">
-          <div class="col-sm-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">
-                First Name
-              </label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control">
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
                 Last Name
               </label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control">
-              </div>
+              <input type="text" class="form-control form-control-md" />
             </div>
           </div>
-        </div>
-      <form class="form-sample">
-        <div class="row">
-          <div class="col-sm-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Given Name
+              </label>
+              <input type="text" class="form-control form-control-md" />
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
                 Middle Name
               </label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control">
-              </div>
+              <input type="text" class="form-control form-control-md" />
             </div>
           </div>
-
         </div>
-      <form class="form-sample">
         <div class="row">
-          <div class="col-sm-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Email
+              </label>
+              <input
+                type="email"
+                class="form-control form-control-md"
+                placeholder="email@domain.com"
+              />
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                class="form-control form-control-md"
+                placeholder="632XXXXXXXX"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Birthdate
+              </label>
+              <input
+                type="text"
+                class="form-control form-control-md"
+                placeholder="dd/mm/yyyy"
+              />
+            </div>
+          </div>
+                  <div class="col-sm-4">
+          <div class="form-group">
+            <label class="col-form-label">
+              Gender
+            </label>
+            <select class="form-control form-select">
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+          </div>
+          {{! <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
                 Gender
               </label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control">
+              <div class="row">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-4">
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input type="radio" class="form-check-input" name="gender" id="gender1" />
+                      Male
+                      <i class="input-helper"></i>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-sm-5">
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input type="radio" class="form-check-input" name="gender" id="gender1" />
+                      Female
+                      <i class="input-helper"></i>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">
-                Date of Birth
+          </div> }}
+        </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="form-group">
+              <label class="col-form-label">
+                Address
               </label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control">
-              </div>
+              <input type="text" class="form-control form-control-md" />
             </div>
           </div>
         </div>
-      <form class="form-sample">
         <div class="row">
-          <div class="col-sm-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">
-                First Name
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Province
               </label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control">
-              </div>
+              <select class="form-control form-select">
+                <option>Test</option>
+                <option>Test1</option>
+              </select>
             </div>
           </div>
-          <div class="col-sm-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">
-                Last Name
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                City
               </label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control">
-              </div>
+              <select class="form-control form-select">
+                <option>Test</option>
+                <option>Test1</option>
+              </select>
             </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Barangay
+              </label>
+              <select class="form-control form-select">
+                <option>Test</option>
+                <option>Test1</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <p class="card-description fs-">Government IDs</p>
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Social Security System (SSS)
+              </label>
+              <input type="text" class="form-control form-control-md" />
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                PhilHealth
+              </label>
+              <input type="text" class="form-control form-control-md" />
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Pag-Ibig
+              </label>
+              <input type="text" class="form-control form-control-md" />
+            </div>
+          </div>
+        </div>
+        <p class="card-description fs-">Job Information</p>
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Department
+              </label>
+              <input type="text" class="form-control form-control-md" />
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Position
+              </label>
+              <input type="text" class="form-control form-control-md" />
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Salary Rate
+              </label>
+              <input type="text" class="form-control form-control-md" />
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Work Schedule
+              </label>
+              <input type="text" class="form-control form-control-md" />
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label class="col-form-label">
+                Main Branch
+              </label>
+              <input type="text" class="form-control form-control-md" />
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <button class="btn btn-primary">
+              Add Employee
+            </button>
+          </div>
+          <div class="col-sm-2">
+            <button class="btn btn-primary">
+              Cancel
+            </button>
           </div>
         </div>
       </form>
