@@ -1,7 +1,8 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
-const mysql = require('mysql');
+// const mysql = require('mysql');
+const pgsql = require('pg');
 
 require('dotenv').config();
 
@@ -23,8 +24,8 @@ app.engine('hbs', exphbs.engine( {extname: '.hbs' }));
 app.set('view engine', 'hbs');
 
 // Connection Pool
-const pool = mysql.createPool({
-  connectionLimit: 100,
+const pool = pgsql.Pool({
+  max: 100,
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
@@ -32,7 +33,7 @@ const pool = mysql.createPool({
 });
 
 // Connect to DB
-pool.getConnection((err, connection) => {
+pool.connect((err, connection) => {
   if (err) throw err; // not connected
   console.log('Connected as ID ' + connection.threadId);
 })

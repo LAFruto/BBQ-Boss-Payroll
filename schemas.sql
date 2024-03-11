@@ -131,7 +131,7 @@ CREATE TABLE account_to_activity (
     FOREIGN KEY (activity_id) REFERENCES activity(id),
     UNIQUE (account_type_id, activity_id)
 );
-
+ 
 
 
 
