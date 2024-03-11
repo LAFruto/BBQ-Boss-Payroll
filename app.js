@@ -2,7 +2,7 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 // const mysql = require('mysql');
-const pgsql = require('pg');
+const { Pool } = require('pg');
 
 require('dotenv').config();
 
@@ -24,7 +24,7 @@ app.engine('hbs', exphbs.engine( {extname: '.hbs' }));
 app.set('view engine', 'hbs');
 
 // Connection Pool
-const pool = pgsql.Pool({
+const pool = new Pool({
   max: 100,
   host: process.env.DB_HOST,
   user: process.env.DB_USER,

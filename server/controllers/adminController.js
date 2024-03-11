@@ -1,8 +1,8 @@
 // const mysql = require('mysql');
-const pgsql = require('pg');
+const { Pool } = require('pg');
 
 // Connection Pool
-const pool = pgsql.Pool({
+const pool = new Pool({
     max: 100,
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
