@@ -1,8 +1,9 @@
-const mysql = require('mysql');
+// const mysql = require('mysql');
+const pgsql = require('pg');
 
 // Connection Pool
-const pool = mysql.createPool({
-    connectionLimit: 100,
+const pool = pgsql.Pool({
+    max: 100,
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -11,7 +12,7 @@ const pool = mysql.createPool({
 
 // View Users
 exports.view = (req, res) => {
-  pool.getConnection((err, connection) => {
+  pool.connect((err, connection) => {
     if (err) throw err; // not connected
     console.log('Connected as ID ' + connection.threadId);
 
@@ -35,7 +36,7 @@ exports.view = (req, res) => {
 // Find user by Search
 exports.find = (req, res) => { 
 
-  pool.getConnection((err, connection) => {
+  pool.connect((err, connection) => {
     if (err) throw err; // not connected
     console.log('Connected as ID ' + connection.threadId);
 
@@ -68,7 +69,7 @@ exports.create = (req, res) => {
   const query = `INSERT INTO tbl_pet (pet_name, owner_id, pet_age, pet_gender, pet_price, pet_color, pet_breed, status_id, date_added) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   const values = [pet_name, owner_id, pet_age, pet_gender, pet_price, pet_color, pet_breed, status_id, date_added];
 
-  pool.getConnection((err, connection) => {
+  pool.connect((err, connection) => {
     if (err) throw err; // not connected
     console.log('Connected as ID ' + connection.threadId);
 
@@ -91,7 +92,7 @@ exports.create = (req, res) => {
 // Edit user
 exports.edit = (req, res) => {
     
-  pool.getConnection((err, connection) => {
+  pool.connect((err, connection) => {
     if (err) throw err; // not connected
     console.log('Connected as ID ' + connection.threadId);
 
@@ -134,7 +135,7 @@ exports.update = (req, res) => {
         pet_id = ?
     `;
 
-    pool.getConnection((err, connection) => {
+    pool.connect((err, connection) => {
       if (err) throw err; // not connected
       console.log('Connected as ID ' + connection.threadId);
   
@@ -145,7 +146,7 @@ exports.update = (req, res) => {
         connection.release();
         
         if(!err) {
-          pool.getConnection((err, connection) => {
+          pool.connect((err, connection) => {
             if (err) throw err; // not connected
             console.log('Connected as ID ' + connection.threadId);
         
@@ -176,7 +177,7 @@ exports.update = (req, res) => {
 // Delete User
 exports.delete = (req, res) => {
     
-  pool.getConnection((err, connection) => {
+  pool.connect((err, connection) => {
     if (err) throw err; // not connected
     console.log('Connected as ID ' + connection.threadId);
 
@@ -200,7 +201,7 @@ exports.delete = (req, res) => {
 // View Users
 exports.viewall = (req, res) => {
   
-  pool.getConnection((err, connection) => {
+  pool.connect((err, connection) => {
     if (err) throw err; // not connected
     console.log('Connected as ID ' + connection.threadId);
 

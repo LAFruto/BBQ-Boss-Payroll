@@ -1,7 +1,8 @@
-const mysql = require("mysql");
+// const mysql = require('mysql');
+const pgsql = require('pg');
 
-const pool = mysql.createPool({
-  connectionLimit: 100,
+const pool = pgsql.createPool({
+  max: 100,
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
@@ -16,7 +17,7 @@ exports.authenticate = (req, res) => {
   const query = `SELECT * FROM users WHERE user=? AND password=?`;
   const { user, password } = req.body;
   
-  pool.getConnection((err, connection) => {
+  pool.connect((err, connection) => {
     if (err) {
       throw err; 
     }
