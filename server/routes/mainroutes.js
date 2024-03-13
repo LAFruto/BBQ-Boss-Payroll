@@ -34,6 +34,7 @@ router.get('/payroll/convert-mbos', payrollController.form)
 router.get('/timekeeping', timekeepingController.view)
 router.post('/timekeeping', timekeepingController.date)
 
+router.post('/timekeeping/add-timesheet', timekeepingController.display)
 router.get('/timekeeping/add-timesheet', timekeepingController.form)
 
 // LEAVES ROUTES

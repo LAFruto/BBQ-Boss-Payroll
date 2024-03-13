@@ -28,3 +28,8 @@ exports.date = (req, res) => {
 exports.form = (req, res) => {
     res.render('add-timesheet')
 };
+
+exports.display = (req, res) => {
+
+    
+}
