@@ -15,6 +15,8 @@ const pool = new Pool({
 
 exports.view = (req, res) => {
     res.render("timekeeping");
+
+    
 };
 
 exports.form = (req, res) => {
