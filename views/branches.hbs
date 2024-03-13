@@ -1,0 +1,58 @@
+<div class="row">
+  <div class="col-sm-3">
+    <form class="">
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        placeholder="🔎︎ Search for Employee"
+      />
+    </form>
+  </div>
+  <div class="col-sm-7 text-end">
+    <a
+      href="/employee/add-employee"
+      class="btn btn-primary btn-sm"
+      type="button"
+    ><i class="bi bi-person-fill-add"></i> Add Branch</a>
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <th scope="col">ID</th>
+              <th scope="col">Address</th>
+              <th scope="col">Starting Hours</th>
+              <th scope="col">Closing Hours</th>
+              <th scope="col">Actions</th>
+            </thead>
+            <tbody>
+              {{#each rows}}
+                <tr>
+                  <td scope="row">x</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td>
+                    <a type="button" class="btn btn-sm btn-primary"><i
+                        class="bi bi-eye"
+                      ></i>
+                      Remove</a>
+                    <a type="button" class="btn btn-sm btn-primary"><i
+                        class="bi bi-eye"
+                      ></i>
+                      Edit</a>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

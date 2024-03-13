@@ -1,7 +1,10 @@
-const mysql = require("mysql");
+// const mysql = require('mysql');
+const { Pool } = require('pg');
 
-const pool = mysql.createPool({
-  connectionLimit: 100,
+require('dotenv').config(); // Load environment variables from .env file
+
+const pool = new Pool({
+  max: 100,
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
@@ -24,15 +27,17 @@ exports.view = (req, res) => {
 };
 
 exports.authenticate = (req, res) => {
-  const query = `SELECT * FROM users WHERE user=? AND password=?`;
+  const query = `SELECT * FROM users WHERE "user" = $1 AND "password" = $2`;
   const { user, password } = req.body;
-  
-  pool.getConnection((err, connection) => {
+
+  pool.connect((err, connection) => {
     if (err) {
       throw err; 
     }
 
-    connection.query(query, [user, password], (err, results) => {
+    connection.query(query, [user, password], (err, { rows }) => {
+
+      console.log(rows);
       connection.release();
 
       if (err) {
@@ -40,7 +45,7 @@ exports.authenticate = (req, res) => {
         return res.status(500).send("Internal Server Error");
       }
 
-      if (results.length > 0) {
+      if (rows.length > 0) {
 				console.log("Login successful");
         const userData = results[0];
         

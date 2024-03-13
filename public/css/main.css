@@ -14,3 +14,17 @@
 .table-striped tbody tr:nth-of-type(even) {
     background-color: rgb(255, 245, 245) !important;
 }
+
+    /* Hide the default arrow icon */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        /* display: none; */
+        fill: red;
+        color: red;
+        background: red;
+        background-color: red;
+      }
+  
+      /* input[type="date"] {
+        padding-right: 30px;
+      } */
+  
