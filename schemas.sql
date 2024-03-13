@@ -279,123 +279,6 @@ CREATE TABLE tbl_dole_rates (
 
 -----------------------QUERIES-------------------------
 
--- period --
-INSERT INTO tbl_periodS(start_date, end_date, payout_date) values 
-('2024-03-01', '2024-03-15', '2024-03-20'),
-('2024-03-16', '2024-03-31', '2024-04-05'),
-
-('2024-04-01', '2024-04-15', '2024-04-20'),
-('2024-04-16', '2024-04-30', '2024-05-05'),
-
-('2024-05-01', '2024-05-15', '2024-05-20'),
-('2024-05-16', '2024-05-31', '2024-06-05'),
-
-('2024-06-01', '2024-06-15', '2024-06-20'),
-('2024-06-16', '2024-06-30', '2024-07-05'),
-
-('2024-07-01', '2024-07-15', '2024-07-20'),
-('2024-07-16', '2024-07-31', '2024-08-05'),
-
-('2024-08-01', '2024-08-15', '2024-08-20'),
-('2024-08-16', '2024-08-31', '2024-09-05'),
-
-('2024-09-01', '2024-09-15', '2024-09-20'),
-('2024-09-16', '2024-09-30', '2024-10-05'),
-
-('2024-10-01', '2024-10-15', '2024-10-20'),
-('2024-10-16', '2024-10-31', '2024-11-05'),
-
-('2024-11-01', '2024-11-15', '2024-11-20'),
-('2024-11-16', '2024-11-30', '2024-12-05'),
-
-('2024-12-01', '2024-12-15', '2024-12-20'),
-('2024-12-16', '2024-12-31', '2025-01-05'),
-
-('2025-01-01', '2025-01-15', '2025-01-20'),
-('2025-01-16', '2025-01-31', '2025-02-05');
-
--- leave type --
-INSERT INTO tbl_leave_types(type) values
-('vacation'),
-('sick');
-
--- acc type --
-INSERT INTO tbl_account_types(type, details) values
-('admin', 'can approve, view, edit, add accounts, check audit'),
-('approver', 'can approve and edit'),
-('viewer', 'view only and download');
-
--- status --
-INSERT INTO tbl_statuses(status) values
-('approved'),
-('declined');
-
--- day type --
-INSERT INTO tbl_day_types(type, details) values
-('REG', 'Regular Working Day'),
-('SH', 'Special Holiday'),
-('RH', 'Regular Holiday');
-
--- civil status --
-INSERT INTO tbl_civil_statuses(status, details) values
-('Single', 'An individual who has never been married or is not currently married'),
-('Married', 'A person who is legally wedded to another person'),
-('Widowed', 'A person who has lost their spouse through death and has not remarried'),
-('Annulled', 'A marriage that has been declared legally invalid, as if it never existed'),
-('Divorced', 'An individual who went through legal process of divorce and is no longer married'),
-('Separated', 'Individuals who are legally married but are apart, often with the goal of divorce');
-
--- gender --
-INSERT INTO tbl_genders(gender) values
-('Male'),
-('Female'),
-('N/A');
-
--- province -- 
-INSERT INTO tbl_provinces(name) values
-('Davao del Sur'),
-('Davao Oriental'),
-('Davao Occidental'),
-('Davao del Norte'),
-('Davao de Oro');
-
--- city --
-INSERT INTO tbl_cities(province_id, name, zip_code) values
-(1, 'Davao', '8000'),
-(4, 'Tagum', '8100'),
-(4, 'Panabo', '8105'),
-(1, 'Digos', '8002'),
-(2, 'Mati', '8200'),
-(3, 'Sarangani', '8015'),
-(5, 'Compostela', '8803'),
-(5, 'Mabini', '8807'),
-(1, 'Bansalan', '8005');
-
--- barangay --
-INSERT INTO tbl_barangays(city_id, name) values
-(1, 'Dacudao'),
-(1, 'Daliao'),
-(1, 'Panacan'),
-(1, 'Tibungco'),
-(1, 'Cabantian'),
-(1, 'Agdao'),
-(1, 'Lapu-Lapu'),
-(1, 'Rafael Castillo'),
-(1, 'Sasa'),
-(1, 'Tigatto'),
-(1, 'Matina Aplaya'),
-(1, 'Maa'),
-(1, 'Catalunan Grande'),
-(1, 'Catalunan Pequeño'),
-(1, 'Bucana');
-
--- activity type --
-INSERT INTO tbl_activity_types(type) values 
-('added user'),
-('edited settings'),
-('approved overtime');
-
-
 ALTER SEQUENCE tbl_employees_id_seq RESTART WITH 10001;
 ALTER SEQUENCE tbl_positions_id_seq RESTART WITH 1001;
 ALTER SEQUENCE tbl_departments_id_seq RESTART WITH 101;
@@ -411,15 +294,17 @@ ALTER SEQUENCE tbl_accounts_id_seq RESTART WITH 901;
 
 -----------------------QUERIES-------------------------
 
+-- acc type --
+INSERT INTO tbl_account_types(type, details) values
+('admin', 'can approve, view, edit, add accounts, check audit'),
+('approver', 'can approve and edit'),
+('viewer', 'view only and download');
+
 -- admin --
 INSERT INTO tbl_accounts(acc_type, username, password) values
 (1, 'admin', 123);
 
 -- period --
-INSERT INTO tbl_periods(start_date, end_date, payout_date) values 
-('2024-03-01', '2024-03-15', '2024-03-20'),
-('2024-03-16', '2024-03-31', '2024-04-05');
-
 INSERT INTO tbl_periods(start_date, end_date, payout_date) values 
 ('2024-03-01', '2024-03-15', '2024-03-20'),
 ('2024-03-16', '2024-03-31', '2024-04-05'),
@@ -458,29 +343,14 @@ INSERT INTO tbl_periods(start_date, end_date, payout_date) values
 INSERT INTO tbl_leave_types(type) values
 ('vacation'),
 ('sick');
-INSERT INTO tbl_leave_types(type) values
-('vacation'),
-('sick');
 
--- acc type --
-INSERT INTO tbl_account_types(type, details) values
-('admin', 'can approve, view, edit, add accounts, check audit'),
-('approver', 'can approve and edit'),
-('viewer', 'view only and download');
-INSERT INTO tbl_account_types(type, details) values
-('admin', 'can approve, view, edit, add accounts, check audit'),
-('approver', 'can approve and edit'),
-('viewer', 'view only and download');
+
 -- status --
 INSERT INTO tbl_statuses(status) values
 ('approved'),
 ('declined');
 
 -- day type --
-INSERT INTO tbl_day_types(type, details) values
-('REG', 'Regular Working Day'),
-('SH', 'Special Holiday'),
-('RH', 'Regular Holiday');
 INSERT INTO tbl_day_types(type, details) values
 ('REG', 'Regular Working Day'),
 ('SH', 'Special Holiday'),
@@ -500,7 +370,6 @@ INSERT INTO tbl_genders(gender) values
 ('Male'),
 ('Female'),
 ('N/A');
-
 
 -- province -- 
 INSERT INTO tbl_provinces(name) values
