@@ -19,8 +19,8 @@ router.get('/dashboard', dashboardController.view);
 
 // EMPLOYEES ROUTES
 router.get('/employee', employeeController.view);
-router.get('/employee/add-employee', employeeController.form);
 router.post('/employee', employeeController.find);
+router.get('/employee/add-employee', employeeController.form);
 
 // router.post('/employee/:id', employeeController.profile)
 
@@ -28,7 +28,6 @@ router.post('/employee', employeeController.find);
 
 // PAYROLL ROUTES
 router.get('/payroll', payrollController.view)
-
 
 // TIMEKEEPING ROUTES
 router.get('/timekeeping', timekeepingController.view)
