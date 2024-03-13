@@ -17,8 +17,7 @@ const pool = new Pool({
 // };
 
 exports.view = (req, res) => {
-  // needs fixing
-  const query = `SELECT id, emp_fname, emp_mname, emp_lname from employee`;
+  const query = `SELECT id, CONCAT(emp_fname, ' ', emp_lname) AS emp_fullname FROM tbl_employees`;
 
   pool.connect((err, connection) => {
     if (err) throw err; // not connected
