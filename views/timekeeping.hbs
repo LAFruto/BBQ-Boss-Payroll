@@ -2,20 +2,24 @@
   <div class="col-md-3 grid-margin stretch-card">
     <div class="card card-primary">
       <div class="card-body">
-        <p class="fw-bold mb-4">
+        <p class="mb-4">
           Current Date
         </p>
-        <p class="fs-30 fw-bold">
-          REG
+        <p class="fs-30 fw-bold my-2">
+          {{{selectedDate}}}
+        </p>
+        <p class="fw-bold">
+          REG 
         </p>
 
         <div class="row">
-          <form class="form-group mb-0 w-4 col-sm-auto">
-            <input class="btn btn-sm btn-outline-primary" id="calendar" type="datetime-local" placeholder="Select Date" style="width: 100px;">
+          <form class="form-group mb-0 w-4 col-sm-auto" id="dateForm" method="POST" action="/timekeeping" novalidate>
+            <input class="btn btn-sm btn-outline-primary" id="calendar_test" name="timekeeping_date"
+              type="datetime-local" placeholder="Select Date" style="width: 90px;" onchange="submitForm()">
           </form>
           <form class="form-group mb-0 w-4 col-sm-auto pl-0">
             <select class="btn btn-sm btn-outline-primary">
-              <option value="" selected disabled hidden>Day Type</option>
+              <option value="" selected disabled hidden>Set Day Type</option>
               <option value="1">REG</option>
               <option value="2">RH</option>
               <option value="3">SH</option>
@@ -26,7 +30,8 @@
 
 
         {{!-- <a class="btn btn-sm btn-outline-primary" type="date"> Select Day</a> --}}
-        {{!-- <button class="btn btn-sm btn-outline-primary"><i class="bi bi-calendar-event"></i> Select Day</button> --}}
+        {{!-- <button class="btn btn-sm btn-outline-primary"><i class="bi bi-calendar-event"></i> Select Day</button>
+        --}}
         {{!-- <button class="btn btn-sm btn-outline-primary">Edit Day Type</button> --}}
       </div>
     </div>
@@ -55,7 +60,7 @@
       </div>
     </div>
   </div>
-    <div class="col-md-3 grid-margin stretch-card">
+  <div class="col-md-3 grid-margin stretch-card">
     <div class="card">
       <div class="card-body d-flex flex-column justify-content-between">
         <p class="mb-4">
@@ -87,8 +92,9 @@
     </form>
   </div>
   <div class="col-sm-7 text-end">
-    <a href="/timekeeping/add-timesheet" class="btn btn-primary btn-sm" type="button"><i class="bi bi-file-earmark-spreadsheet-fill"></i> Import CSV</a> 
-    <a class="btn btn-primary btn-sm" type="button"><i class="bi bi-ui-checks"></i> Approve All</a> 
+    <a href="/timekeeping/add-timesheet" class="btn btn-primary btn-sm" type="button"><i
+        class="bi bi-file-earmark-spreadsheet-fill"></i> Import CSV</a>
+    <a class="btn btn-primary btn-sm" type="button"><i class="bi bi-ui-checks"></i> Approve All</a>
   </div>
 </div>
 <div class="row">
@@ -131,3 +137,22 @@
     </div>
   </div>
 </div>
+
+<script>
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+    const calendar = flatpickr("#calendar_test", {
+      enableTime: false,
+      onChange: function (selectedDates, dateStr, instance) {
+
+        submitForm();
+      }
+    });
+
+    function submitForm() {
+      document.getElementById('dateForm').submit();
+    }
+  });
+
+</script>

@@ -2749,42 +2749,61 @@ fieldset:disabled .wizard > .actions a,
   border-color: #fff  !important;
 }
 
+.flatpickr-input[placeholder]::placeholder {
+  color: #ffffff !important; /* Change to your desired color */ 
+}
+
+.flatpickr-input[placeholder]:hover::placeholder {
+  color: rgb(252, 89, 89) !important; /* Change to your desired color */ 
+}
+
+.flatpickr-input[placeholder]:focus::placeholder {
+  border-color: #fff !important;
+}
+
+
+
 .btn-outline-primary:hover {
   color: rgb(252, 89, 89) !important;
-  background-color: #fff !important;
+  background-color: #ffffff !important;
   border-color: #fff !important;
 }
 
 .btn-outline-primary:focus, .btn-outline-primary.focus {
   box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.5) !important;
+  color: rgb(252, 89, 89) !important;
+  background-color: #fff !important;
+  border-color: #fff !important; 
 }
 
 .btn-outline-primary.disabled, .btn-outline-primary:disabled {
-  color: #fc5959;
+  color: #fc5959 !important;
   background-color: transparent;
+  border-color: #fff !important; 
 }
 
 .btn-outline-primary:not(:disabled):not(.disabled):active, .btn-outline-primary:not(:disabled):not(.disabled).active,
 .show > .btn-outline-primary.dropdown-toggle {
-  color: #fff;
-  background-color: #fc5959;
-  border-color: #fc5959;
+  color: #fff !important;
+  background-color: #fc5959 !important;
+  border-color: #fc5959 !important;
 }
 
 .btn-outline-primary:not(:disabled):not(.disabled):active:focus, .btn-outline-primary:not(:disabled):not(.disabled).active:focus,
 .show > .btn-outline-primary.dropdown-toggle:focus {
-  box-shadow: 0 0 0 0.2rem rgba(75, 73, 172, 0.5);
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.5) !important;
+  border-color: #fff !important; 
 }
 
 .btn-outline-secondary, .editable-container.editable-inline .editableform .control-group .editable-buttons .editable-cancel {
   color: #a3a4a5;
-  border-color: #a3a4a5;
+  border-color: #fff !important; 
 }
 
 .btn-outline-secondary:hover, .editable-container.editable-inline .editableform .control-group .editable-buttons .editable-cancel:hover {
   color: #212529;
   background-color: #a3a4a5;
-  border-color: #a3a4a5;
+  border-color: #fff !important; 
 }
 
 .btn-outline-secondary:focus, .editable-container.editable-inline .editableform .control-group .editable-buttons .editable-cancel:focus, .btn-outline-secondary.focus, .editable-container.editable-inline .editableform .control-group .editable-buttons .focus.editable-cancel {
@@ -4237,8 +4256,8 @@ input[type="button"].btn-block {
 
 .custom-control-input:checked ~ .custom-control-label::before {
   color: #fff;
-  border-color: #007bff;
-  background-color: #007bff;
+  /* border-color: #007bff;
+  background-color: #007bff; */
 }
 
 .custom-control-input:focus ~ .custom-control-label::before {
@@ -4302,8 +4321,8 @@ input[type="button"].btn-block {
 }
 
 .custom-checkbox .custom-control-input:indeterminate ~ .custom-control-label::before {
-  border-color: #007bff;
-  background-color: #007bff;
+  /* border-color: #007bff;
+  background-color: #007bff; */
 }
 
 .custom-checkbox .custom-control-input:indeterminate ~ .custom-control-label::after {
@@ -4311,11 +4330,11 @@ input[type="button"].btn-block {
 }
 
 .custom-checkbox .custom-control-input:disabled:checked ~ .custom-control-label::before {
-  background-color: rgba(0, 123, 255, 0.5);
+  /* background-color: rgba(0, 123, 255, 0.5); */
 }
 
 .custom-checkbox .custom-control-input:disabled:indeterminate ~ .custom-control-label::before {
-  background-color: rgba(0, 123, 255, 0.5);
+  /* background-color: rgba(0, 123, 255, 0.5); */
 }
 
 .custom-radio .custom-control-label::before {
@@ -4327,7 +4346,7 @@ input[type="button"].btn-block {
 }
 
 .custom-radio .custom-control-input:disabled:checked ~ .custom-control-label::before {
-  background-color: rgba(0, 123, 255, 0.5);
+  /* background-color: rgba(0, 123, 255, 0.5); */
 }
 
 .custom-switch {
@@ -4363,7 +4382,7 @@ input[type="button"].btn-block {
 }
 
 .custom-switch .custom-control-input:disabled:checked ~ .custom-control-label::before {
-  background-color: rgba(0, 123, 255, 0.5);
+  /* background-color: rgba(0, 123, 255, 0.5); */
 }
 
 .custom-select {
@@ -4383,7 +4402,7 @@ input[type="button"].btn-block {
 }
 
 .custom-select:focus {
-  border-color: #80bdff;
+  /* border-color: #80bdff; */
   outline: 0;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
@@ -4531,7 +4550,7 @@ input[type="button"].btn-block {
   width: 1rem;
   height: 1rem;
   margin-top: -0.25rem;
-  background-color: #007bff;
+  /* background-color: #007bff; */
   border: 0;
   border-radius: 1rem;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -4561,7 +4580,7 @@ input[type="button"].btn-block {
 .custom-range::-moz-range-thumb {
   width: 1rem;
   height: 1rem;
-  background-color: #007bff;
+  /* background-color: #007bff; */
   border: 0;
   border-radius: 1rem;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -4594,7 +4613,7 @@ input[type="button"].btn-block {
   margin-top: 0;
   margin-right: 0.2rem;
   margin-left: 0.2rem;
-  background-color: #007bff;
+  /* background-color: #007bff; */
   border: 0;
   border-radius: 1rem;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -4730,7 +4749,7 @@ input[type="button"].btn-block {
 .nav-pills .nav-link.active,
 .nav-pills .show > .nav-link {
   color: #fff;
-  background-color: #007bff;
+  /* background-color: #007bff; */
 }
 
 .nav-fill > .nav-link,
@@ -5417,7 +5436,7 @@ input[type="button"].btn-block {
   padding: 0.5rem 0.75rem;
   margin-left: -1px;
   line-height: 1.25;
-  color: #007bff;
+  /* color: #007bff; */
   background-color: #fff;
   border: 1px solid #dee2e6;
 }

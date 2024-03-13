@@ -1,7 +1,7 @@
 // const mysql = require('mysql');
-const { Pool } = require('pg');
+const { Pool } = require("pg");
 
-require('dotenv').config(); // Load environment variables from .env file
+require("dotenv").config(); // Load environment variables from .env file
 
 // Connection Pool
 const pool = new Pool({
@@ -17,17 +17,35 @@ const pool = new Pool({
 // };
 
 exports.view = (req, res) => {
-  const query = `SELECT id, CONCAT(emp_fname, ' ', emp_lname) AS emp_fullname FROM tbl_employees`;
+  const query = `SELECT 
+  e.id AS employee_id,
+  CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
+  d.dept_name AS department,
+  p.name AS position,
+  rc.rateclass_name AS rate_class,
+  CONCAT('₱', p.salary_rate) AS salary_rate,
+  TO_CHAR(e.date_hired, 'YYYY-MM-DD') AS date_hired
+FROM 
+  tbl_employees e
+JOIN 
+  tbl_positions p ON e.position_id = p.id
+JOIN 
+  tbl_departments d ON p.department_id = d.id
+JOIN 
+  tbl_rateclasses rc ON p.rateclass_id = rc.id
+LEFT JOIN 
+  tbl_emp_to_contacts etc ON e.id = etc.emp_id`
+
 
   pool.connect((err, connection) => {
     if (err) throw err; // not connected
     console.log("Connected as ID " + connection.processID);
-  
+
     connection.query(query, (err, { rows }) => {
       connection.release();
-  
+
       if (!err) {
-        res.render("employee", {rows: rows});
+        res.render("employee", { rows: rows });
       } else {
         console.log(err);
       }
@@ -36,11 +54,72 @@ exports.view = (req, res) => {
   });
 };
 
+// Find user by Search
+exports.find = (req, res) => { 
+  // const query = `SELECT * FROM tbl_employees WHERE 
+  // "emp_fname" ILIKE $1 
+  // OR "emp_lname" ILIKE $1 
+  // OR "emp_mname" ILIKE $1 
+  // OR "emp_lname" ILIKE $1 
+  // OR "email" ILIKE $1 
+  // OR "sss_no" ILIKE $1 
+  // OR "philhealth_no" ILIKE $1 
+  // OR "pagibig_no" ILIKE $1`;
+
+  const query = `SELECT 
+  e.id AS employee_id,
+  CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
+  d.dept_name AS department,
+  p.name AS position,
+  rc.rateclass_name AS rate_class,
+  CONCAT('₱', p.salary_rate) AS salary_rate,
+  TO_CHAR(e.date_hired, 'YYYY-MM-DD') AS date_hired
+FROM 
+  tbl_employees e
+JOIN 
+  tbl_positions p ON e.position_id = p.id
+JOIN 
+  tbl_departments d ON p.department_id = d.id
+JOIN 
+  tbl_rateclasses rc ON p.rateclass_id = rc.id
+LEFT JOIN 
+  tbl_emp_to_contacts etc ON e.id = etc.emp_id
+WHERE 
+  e.id::text ILIKE $1
+  OR CONCAT(e.emp_fname, ' ', e.emp_lname) ILIKE $1
+  OR d.dept_name ILIKE $1
+  OR p.name ILIKE $1
+  OR rc.rateclass_name ILIKE $1
+  OR CONCAT('₱', p.salary_rate) ILIKE $1
+  OR TO_CHAR(e.date_hired, 'YYYY-MM-DD') ILIKE $1
+
+    `
+
+  // filtering through dates needs parsing, utmost caution is advised
+
+  let searchTerm = req.body.search
+  
+  pool.connect((err, connection) => {
+    if (err) throw err; // not connected
+    console.log('Connected as ID ' + connection.threadId);
+
+    // User the connection
+    connection.query(query, ['%' + searchTerm + '%'], (err, { rows }) => {
+      console.log(`searchTerm`);
+      // When done with the connection, release it
+      connection.release();
+      
+      if(!err) {
+        res.render('employee', { rows: rows, searchValue: searchTerm })
+      } else {
+        console.log(err);
+      }
+      console.log('The data from filtered employees table: \n', rows);
+
+    });
+  });
+}
+
 exports.form = (req, res) => {
-  res.render('add-employee')
+  res.render("add-employee");
 };
-
-// exports.view = (req, res) => {
-//     res.render("employee");
-// };
-

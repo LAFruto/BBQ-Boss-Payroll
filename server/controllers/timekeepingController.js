@@ -2,8 +2,6 @@
 const { Pool } = require('pg');
 const flatpickr = require('flatpickr');
 
-require('dotenv').config(); // Load environment variables from .env file
-
 // Connection Pool
 const pool = new Pool({
     max: 100,
@@ -14,10 +12,18 @@ const pool = new Pool({
 });
 
 exports.view = (req, res) => {
-    res.render("timekeeping");
-
+    const currentDate = new Date();
+    const selectedDate = new Date(currentDate.getTime() - (currentDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
     
+    // Render the timekeeping page without any selected date
+    res.render('timekeeping', { selectedDate });
 };
+
+exports.date = (req, res) => {
+    const selectedDate = req.body.timekeeping_date;
+
+    res.render('timekeeping', { selectedDate }); 
+}
 
 exports.form = (req, res) => {
     res.render('add-timesheet')

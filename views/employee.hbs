@@ -1,11 +1,7 @@
 <div class="row">
   <div class="col-sm-3">
-    <form class="">
-      <input
-        type="text"
-        class="form-control form-control-sm"
-        placeholder="🔎︎ Search for Employee"
-      />
+    <form class="" id="searchForm" method="POST" action="/employee" novalidate autocomplete="off">
+      <input type="text" id="searchInput" name="search" class="form-control form-control-sm" placeholder="🔎︎ Search for Employee" onchange="submitForm()" value="{{ searchValue }}">
     </form>
   </div>
   <div class="col-sm-2 px-0">
@@ -40,22 +36,20 @@
               <th scope="col">Employee</th>
               <th scope="col">Department</th>
               <th scope="col">Position</th>
-              <th scope="col">Branch</th>
-              <th scope="col">Contact #</th>
-              <th scope="col">Email</th>
+              <th scope="col">Rate Class</th>
+              <th scope="col">Rate</th>
               <th scope="col">Date Hired</th>
               <th scope="col">Actions</th>
             </thead>
             <tbody>
               {{#each rows}}
                 <tr>
-                  <td scope="row">{{this.id}}</td>
-                  <td>{{this.emp_fullname}}</td>
+                  <td scope="row">{{this.employee_id}}</td>
+                  <td>{{this.employee_name}}</td>
                   <td>{{this.department}}</td>
                   <td>{{this.position}}</td>
-                  <td>{{this.address}}</td>
-                  <td>{{this.contact}}</td>
-                  <td>{{this.email}}</td>
+                  <td>{{this.rate_class}}</td>
+                  <td>{{this.salary_rate}}</td>
                   <td>{{this.date_hired}}</td>
                   <td>
                     <a type="button" class="btn btn-sm btn-primary"><i
@@ -72,3 +66,19 @@
     </div>
   </div>
 </div>
+
+<script>
+  function submitForm() {
+    document.getElementById('searchForm').submit();
+  }
+   // Add this script to retain the focus on the input field after form submission
+  window.onload = function() {
+    const searchValue = "{{ searchValue }}";
+    if (searchValue !== "") {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.focus();
+      // Set the selection range to the end of the input value
+      searchInput.setSelectionRange(searchValue.length, searchValue.length);
+    }
+  };
+</script>

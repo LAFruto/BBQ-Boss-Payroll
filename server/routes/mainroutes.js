@@ -20,6 +20,7 @@ router.get('/dashboard', dashboardController.view)
 // EMPLOYEES ROUTES
 router.get('/employee', employeeController.view)
 router.get('/employee/add-employee', employeeController.form)
+router.post('/employee', employeeController.find)
 
 // router.post('/employee/:id', employeeController.profile)
 
@@ -31,6 +32,8 @@ router.get('/payroll/convert-mbos', payrollController.form)
 
 // TIMEKEEPING ROUTES
 router.get('/timekeeping', timekeepingController.view)
+router.post('/timekeeping', timekeepingController.date)
+
 router.get('/timekeeping/add-timesheet', timekeepingController.form)
 
 // LEAVES ROUTES

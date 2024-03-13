@@ -430,8 +430,8 @@ INSERT INTO tbl_positions (id, department_id, rateclass_id, name, details, salar
 (1001, 101, 1, 'Chef', 'Head of the kitchen, responsible for menu creation and food quality', 450.00),
 (1002, 101, 1, 'Sous Chef', 'Assists the head chef in kitchen operations', 450.00),
 (1003, 101, 1, 'Cook', 'Responsible for cooking and food preparation', 450.00),
-(1004, 102, 1, 'Waiter/Waitress', 'Responsible for taking orders and serving food to customers', 450.00),
-(1005, 103, 2, 'Restaurant Manager', 'Oversees overall restaurant operations and staff management', 12000.00);
+(1004, 102, 1, 'Waiter', 'Responsible for taking orders and serving food to customers', 450.00),
+(1005, 103, 2, 'Supervisor', 'Oversees overall restaurant operations and staff management', 12000.00);
 
 -- Employees
 INSERT INTO tbl_employees (id, position_id, gender_id, civil_id, emp_fname, emp_lname, emp_mname, birthdate, email, sss_no, philhealth_no, pagibig_no, date_hired, status, emp_type) VALUES
@@ -453,3 +453,17 @@ INSERT INTO tbl_emp_to_contacts (emp_id, contact_id) VALUES
 (10002, 2),
 (10003, 3),
 (10004, 4);
+
+
+INSERT INTO tbl_addresses(type) VALUES
+(1, 'Quirino')
+(2, 'Lanang')
+(3, 'Matina')
+(4, 'Quimpo')
+
+INSERT INTO tbl_branches(address_id, starting_hrs, closing_hrs) 
+VALUES
+( 1, '10:30', '01:30'),
+( 2, '10:00', '00:00'), -- Assuming '00:00' represents midnight
+( 3, '10:30', '01:30'),
+( 4, '10:30', '01:30');
