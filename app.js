@@ -35,7 +35,7 @@ const pool = new Pool({
 // Connect to DB
 pool.connect((err, connection) => {
   if (err) throw err; // not connected
-  console.log('Connected as ID ' + connection.threadId);
+  console.log('Connected as ID ' + connection.processID);
 })
 
 const routes = require('./server/routes/mainroutes');

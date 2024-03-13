@@ -1,6 +1,8 @@
 // const mysql = require('mysql');
 const { Pool } = require('pg');
 
+require('dotenv').config(); // Load environment variables from .env file
+
 // Connection Pool
 const pool = new Pool({
     max: 100,

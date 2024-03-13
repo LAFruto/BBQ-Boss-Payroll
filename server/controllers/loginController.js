@@ -1,6 +1,8 @@
 // const mysql = require('mysql');
 const { Pool } = require('pg');
 
+require('dotenv').config(); // Load environment variables from .env file
+
 const pool = new Pool({
   max: 100,
   host: process.env.DB_HOST,
@@ -14,15 +16,17 @@ exports.view = (req, res) => {
 };
 
 exports.authenticate = (req, res) => {
-  const query = `SELECT * FROM users WHERE user=? AND password=?`;
+  const query = `SELECT * FROM users WHERE "user" = $1 AND "password" = $2`;
   const { user, password } = req.body;
-  
+
   pool.connect((err, connection) => {
     if (err) {
       throw err; 
     }
 
-    connection.query(query, [user, password], (err, results) => {
+    connection.query(query, [user, password], (err, { rows }) => {
+
+      console.log(rows);
       connection.release();
 
       if (err) {
@@ -30,7 +34,7 @@ exports.authenticate = (req, res) => {
         return res.status(500).send("Internal Server Error");
       }
 
-      if (results.length > 0) {
+      if (rows.length > 0) {
 				console.log("Login successful");
         res.redirect("/dashboard");
       } else {

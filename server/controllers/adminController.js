@@ -1,6 +1,8 @@
 // const mysql = require('mysql');
 const { Pool } = require('pg');
 
+require('dotenv').config(); // Load environment variables from .env file
+
 // Connection Pool
 const pool = new Pool({
     max: 100,
@@ -14,20 +16,20 @@ const pool = new Pool({
 exports.view = (req, res) => {
   pool.connect((err, connection) => {
     if (err) throw err; // not connected
-    console.log('Connected as ID ' + connection.threadId);
+    console.log('Connected as ID ' + connection.processID);
 
     // User the connection
-    connection.query('SELECT * FROM tbl_pet', (err, rows) => {
+    connection.query('SELECT * FROM city', (err, { rows }) => {
       // When done with the connection, release it
       console.log('HELLO');
       connection.release();
       
       if(!err) {
-        res.render('home', { rows })
+        res.render('home', rows)
       } else {
         console.log(err);
       }
-      console.log('The data from pet table: \n', rows);
+      console.log('The data from city table: \n', rows);
 
     });
   });
@@ -41,7 +43,7 @@ exports.find = (req, res) => {
     console.log('Connected as ID ' + connection.threadId);
 
     // User the connection
-    connection.query('SELECT * FROM tbl_pet WHERE pet_name LIKE ?', ['%' + searchTerm + '%'], (err, rows) => {
+    connection.query('SELECT * FROM city WHERE name LIKE ?', ['%' + searchTerm + '%'], (err, rows) => {
       // When done with the connection, release it
       connection.release();
       
@@ -50,7 +52,7 @@ exports.find = (req, res) => {
       } else {
         console.log(err);
       }
-      console.log('The data from pet table: \n', rows);
+      console.log('The data from city table: \n', rows);
 
     });
   });
