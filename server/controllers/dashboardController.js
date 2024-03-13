@@ -14,9 +14,9 @@ const pool = new Pool({
 
 exports.view = (req, res) => {
     console.log(req.session)
-    if (req.session.user && req.session.account_type === 'admin') {
+    if (req.session.username && req.session.acc_type === 1) {
         res.render("dashboard");
-    } else if (req.session.user && req.session.account_type === 'viewer') {
+    } else if (req.session.username && req.session.acc_type === 'viewer') {
         res.render("dashboard");
     } else {
         res.redirect('/')

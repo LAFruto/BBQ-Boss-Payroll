@@ -27,7 +27,7 @@ exports.view = (req, res) => {
 };
 
 exports.authenticate = (req, res) => {
-  const query = `SELECT * FROM users WHERE "user" = $1 AND "password" = $2`;
+  const query = `SELECT * FROM tbl_accounts WHERE "username" = $1 AND "password" = $2`;
   const { user, password } = req.body;
 
   pool.connect((err, connection) => {
@@ -47,18 +47,21 @@ exports.authenticate = (req, res) => {
 
       if (rows.length > 0) {
 				console.log("Login successful");
-        const userData = results[0];
+
+        const userData = rows[0]
         
         console.log(userData);
+        console.log(userData.username);
+        console.log(userData.acc_type);
         
-        req.session.user = userData.user; // Set user session variable
-        req.session.account_type = userData.account_type; // Set role session variable
+        req.session.username = userData.username;
+        req.session.acc_type = userData.acc_type;
         
         res.redirect("/dashboard");
       } else {
 				res.render("login", { alert: 'Incorrect login details', layout: "loginLayout" } )
 				console.log("Login failed");
-      }
+      } 
     });
   });
 };
