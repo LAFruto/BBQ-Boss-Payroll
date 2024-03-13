@@ -1930,8 +1930,17 @@ input.asColorPicker-input[type="month"],
 .select2-container--default .select2-selection--single input.select2-search__field[type="month"],
 input.typeahead[type="month"],
 input.tt-query[type="month"],
-input.tt-hint[type="month"] {
+input.tt-hint[type="month"], select {
   appearance: none;
+}
+
+select {
+  background: url("data:image/svg+xml,<svg height='10px' width='10px' viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>") no-repeat;
+  background-position: calc(100% - 0.75rem) center !important;
+  -moz-appearance:none !important;
+  -webkit-appearance: none !important; 
+  appearance: none !important;
+  padding-right: 2rem !important;
 }
 
 select.form-control:focus::-ms-value, select.asColorPicker-input:focus::-ms-value, .dataTables_wrapper select:focus::-ms-value,
@@ -2741,13 +2750,13 @@ fieldset:disabled .wizard > .actions a,
 }
 
 .btn-outline-primary:hover {
-  color: #fc5959 !important;
+  color: rgb(252, 89, 89) !important;
   background-color: #fff !important;
   border-color: #fff !important;
 }
 
 .btn-outline-primary:focus, .btn-outline-primary.focus {
-  box-shadow: 0 0 0 0.2rem rgba(75, 73, 172, 0.5);
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.5) !important;
 }
 
 .btn-outline-primary.disabled, .btn-outline-primary:disabled {

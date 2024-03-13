@@ -8,24 +8,12 @@
       />
     </form>
   </div>
-  <div class="col-sm-2 px-0">
-    <form class="form-group mb-0 w-4 col-sm-auto pl-0">
-      <select class="btn btn-sm btn-dark">
-        <option value="" selected disabled hidden>Department</option>
-        <option value="1">REG</option>
-        <option value="2">RH</option>
-        <option value="3">SH</option>
-        <option value="4">RHSH</option>
-      </select>
-    </form>
-
-  </div>
   <div class="col-sm-7 text-end">
     <a
       href="/employee/add-employee"
       class="btn btn-primary btn-sm"
       type="button"
-    ><i class="bi bi-person-fill-add"></i> Add Employee</a>
+    ><i class="bi bi-person-fill-add"></i> Add Position</a>
   </div>
 </div>
 <div class="row">
@@ -37,31 +25,25 @@
           <table class="table">
             <thead>
               <th scope="col">ID</th>
-              <th scope="col">Employee</th>
-              <th scope="col">Department</th>
               <th scope="col">Position</th>
-              <th scope="col">Branch</th>
-              <th scope="col">Contact #</th>
-              <th scope="col">Email</th>
-              <th scope="col">Date Hired</th>
+              <th scope="col">Description</th>
               <th scope="col">Actions</th>
             </thead>
             <tbody>
               {{#each rows}}
                 <tr>
-                  <td scope="row">{{this.emp_id}}</td>
-                  <td>{{this.name}}</td>
-                  <td>{{this.department}}</td>
-                  <td>{{this.position}}</td>
-                  <td>{{this.address}}</td>
-                  <td>{{this.contact}}</td>
-                  <td>{{this.email}}</td>
-                  <td>{{this.date_hired}}</td>
+                  <td scope="row">x</td>
+                  <td></td>
+                  <td></td>
                   <td>
                     <a type="button" class="btn btn-sm btn-primary"><i
                         class="bi bi-eye"
                       ></i>
-                      View Profile</a>
+                      Remove</a>
+                    <a type="button" class="btn btn-sm btn-primary"><i
+                        class="bi bi-eye"
+                      ></i>
+                      Edit</a>
                   </td>
                 </tr>
               {{/each}}
