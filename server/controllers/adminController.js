@@ -43,16 +43,17 @@ exports.find = (req, res) => {
     console.log('Connected as ID ' + connection.threadId);
 
     // User the connection
-    connection.query('SELECT * FROM city WHERE name LIKE ?', ['%' + searchTerm + '%'], (err, rows) => {
+    connection.query(`SELECT * FROM tbl_employees WHERE "emp_fname" ILIKE $1`, ['%' + searchTerm + '%'], (err, rows) => {
+      console.log(`searchTerm`);
       // When done with the connection, release it
       connection.release();
       
       if(!err) {
-        res.render('home', { rows })
+        res.render('home', { rows: rows })
       } else {
         console.log(err);
       }
-      console.log('The data from city table: \n', rows);
+      console.log('The data from filtered employees table: \n', rows);
 
     });
   });

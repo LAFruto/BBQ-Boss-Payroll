@@ -13,13 +13,14 @@ router.get('/', loginController.view);
 router.post('/', loginController.authenticate);
 
 // DASHBOARD ROUTES
-router.get('/dashboard', dashboardController.view)
+router.get('/dashboard', dashboardController.view);
 // router.post('', dashboardController.branch)
 // router.post('', dashboardController.period)
 
 // EMPLOYEES ROUTES
-router.get('/employee', employeeController.view)
-router.get('/employee/add-employee', employeeController.form)
+router.get('/employee', employeeController.view);
+router.get('/employee/add-employee', employeeController.form);
+router.post('/employee', employeeController.find);
 
 // router.post('/employee/:id', employeeController.profile)
 

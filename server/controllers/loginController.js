@@ -16,7 +16,7 @@ exports.view = (req, res) => {
 };
 
 exports.authenticate = (req, res) => {
-  const query = `SELECT * FROM users WHERE "user" = $1 AND "password" = $2`;
+  const query = `SELECT * FROM tbl_accounts WHERE "username" = $1 AND "password" = $2`;
   const { user, password } = req.body;
 
   pool.connect((err, connection) => {
