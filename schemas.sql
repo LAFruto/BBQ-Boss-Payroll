@@ -255,7 +255,8 @@ CREATE TABLE tbl_daily_time_records (
 	status_id INT,
 	FOREIGN KEY(status_id) REFERENCES tbl_statuses(id),
 	hasOT Boolean,
-	hasBreak Boolean
+	hasBreak Boolean,
+	
 );
 
 CREATE TABLE tbl_sss (
@@ -293,6 +294,28 @@ ALTER SEQUENCE tbl_activities_id_seq RESTART WITH 800001;
 ALTER SEQUENCE tbl_accounts_id_seq RESTART WITH 901;
 
 -----------------------QUERIES-------------------------
+
+-- DATES -- 
+-- Delete existing data from tbl_dates (if any)
+DELETE FROM tbl_dates;
+
+-- Insert dates for the year 2024
+WITH RECURSIVE dates AS (
+  SELECT 
+    1 AS id, 
+    1 AS day_type_id, 
+    CAST('2024-01-01' AS TIMESTAMP) AS date -- Cast to TIMESTAMP here
+  UNION ALL
+  SELECT 
+    id + 1, 
+    1, 
+    date + INTERVAL '1 day' AS date
+  FROM dates
+  WHERE date < '2025-01-01'
+)
+INSERT INTO tbl_dates (id, day_type_id, date)
+SELECT id, day_type_id, date::DATE
+FROM dates;
 
 -- acc type --
 INSERT INTO tbl_account_types(type, details) values
@@ -464,6 +487,8 @@ INSERT INTO tbl_addresses(type) VALUES
 INSERT INTO tbl_branches(address_id, starting_hrs, closing_hrs) 
 VALUES
 ( 1, '10:30', '01:30'),
-( 2, '10:00', '00:00'), -- Assuming '00:00' represents midnight
+( 2, '10:00', '00:00'),
 ( 3, '10:30', '01:30'),
 ( 4, '10:30', '01:30');
+
+
