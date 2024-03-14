@@ -247,11 +247,9 @@ CREATE TABLE tbl_daily_time_records (
 	FOREIGN KEY(branch_id) REFERENCES tbl_branches(id),
 	status_id INT,
 	FOREIGN KEY(status_id) REFERENCES tbl_statuses(id),
-	hasOT Boolean DEFAULT false,
-	hasBreak Boolean DEFAULT false,
+	hasOT Boolean,
+	hasBreak Boolean,
 	
-	start_time Time,
-	end_time Time
 );
 
 CREATE TABLE tbl_sss (
@@ -297,11 +295,6 @@ ALTER SEQUENCE tbl_activities_id_seq RESTART WITH 800001;
 ALTER SEQUENCE tbl_accounts_id_seq RESTART WITH 901;
 
 -----------------------QUERIES-------------------------
-
-INSERT INTO tbl_day_types(details) VALUES 
-('REG'),
-('RH'),
-('SH');
 
 -- DATES -- 
 -- Delete existing data from tbl_dates (if any)
@@ -664,3 +657,5 @@ VALUES
 ( 2, '10:00', '00:00'),
 ( 3, '10:30', '01:30'),
 ( 4, '10:30', '01:30');
+
+
