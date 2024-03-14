@@ -96,11 +96,7 @@ CREATE TABLE tbl_positions (
 	name VARCHAR(50),
 	details VARCHAR(255),
 	salary_rate DECIMAL(9, 2)
-	
-	/* The following are derived: 
-		hourly_rate 
-		daily_rate 
-	*/
+
 );
 
 CREATE TABLE tbl_trainees (
@@ -188,7 +184,7 @@ CREATE TABLE tbl_leaves (
 );
 
 CREATE TABLE tbl_dates (
-	id SERIAL PRIMARY KEY,
+	id BIGSERIAL PRIMARY KEY,
 	day_type_id INT,
 	FOREIGN KEY(day_type_id) REFERENCES tbl_day_types(id),
 	date DATE
@@ -220,10 +216,9 @@ CREATE TABLE tbl_accounts (
 CREATE TABLE tbl_payrolls (
 	id SERIAL PRIMARY KEY,
 	period_id INT,
+	emp_id INT,
 	FOREIGN KEY(period_id) REFERENCES tbl_periods(id),
-	account_id INT,
-	FOREIGN KEY(account_id) REFERENCES tbl_accounts(id)
-	-- net pay is derived
+	FOREIGN KEY(emp_id) REFERENCES tbl_employees(id)
 );
 
 CREATE TABLE tbl_charges (
@@ -244,8 +239,6 @@ CREATE TABLE tbl_emp_to_charges (
 
 CREATE TABLE tbl_daily_time_records (
 	id SERIAL PRIMARY KEY,
-	payroll_id INT,
-	FOREIGN KEY(payroll_id) REFERENCES tbl_payrolls(id),
 	emp_id INT,
 	FOREIGN KEY(emp_id) REFERENCES tbl_employees(id),
 	date_id INT,
@@ -257,6 +250,8 @@ CREATE TABLE tbl_daily_time_records (
 	hasOT Boolean,
 	hasBreak Boolean,
 	
+	start_time Time,
+	end_time Time
 );
 
 CREATE TABLE tbl_sss (
@@ -278,6 +273,12 @@ CREATE TABLE tbl_dole_rates (
 	rate DECIMAL(2, 5)
 );
 
+CREATE TABLE tbl_dole_times (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(50),
+	"time" Time
+);
+
 -----------------------QUERIES-------------------------
 
 ALTER SEQUENCE tbl_employees_id_seq RESTART WITH 10001;
@@ -295,6 +296,11 @@ ALTER SEQUENCE tbl_accounts_id_seq RESTART WITH 901;
 
 -----------------------QUERIES-------------------------
 
+INSERT INTO tbl_day_types(details) VALUES 
+('REG'),
+('RH'),
+('SH');
+
 -- DATES -- 
 -- Delete existing data from tbl_dates (if any)
 DELETE FROM tbl_dates;
@@ -302,7 +308,7 @@ DELETE FROM tbl_dates;
 -- Insert dates for the year 2024
 WITH RECURSIVE dates AS (
   SELECT 
-    1 AS id, 
+    200001 AS id, 
     1 AS day_type_id, 
     CAST('2024-01-01' AS TIMESTAMP) AS date -- Cast to TIMESTAMP here
   UNION ALL
@@ -371,6 +377,7 @@ INSERT INTO tbl_leave_types(type) values
 -- status --
 INSERT INTO tbl_statuses(status) values
 ('approved'),
+('pending');
 ('declined');
 
 -- day type --
@@ -477,12 +484,11 @@ INSERT INTO tbl_emp_to_contacts (emp_id, contact_id) VALUES
 (10003, 3),
 (10004, 4);
 
-
-INSERT INTO tbl_addresses(type) VALUES
-(1, 'Quirino')
-(2, 'Lanang')
-(3, 'Matina')
-(4, 'Quimpo')
+INSERT INTO tbl_addresses(address) VALUES
+('Quirino'),
+('Lanang'),
+('Matina'),
+('Quimpo');
 
 INSERT INTO tbl_branches(address_id, starting_hrs, closing_hrs) 
 VALUES
@@ -491,4 +497,42 @@ VALUES
 ( 3, '10:30', '01:30'),
 ( 4, '10:30', '01:30');
 
+-- DTR ENTRIES -- 
 
+INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
+VALUES
+(10001, 200061, 10, 2, false, false, '10:10', '18:00'),
+(10001, 200062, 10, 2, false, false, '09:30', '17:30'),
+(10001, 200063, 10, 2, false, false, '10:15', '18:15');
+
+INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
+VALUES
+(10002, 200061, 10, 2, false, false, '09:00', '17:00'),
+(10002, 200062, 10, 2, false, false, '09:45', '17:45'),
+(10002, 200063, 10, 2, false, false, '08:30', '16:30');
+
+INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
+VALUES
+(10003, 200061, 10, 2, false, false, '08:00', '16:00'),
+(10003, 200062, 10, 2, false, false, '08:45', '16:45'),
+(10003, 200063, 10, 2, false, false, '09:15', '17:15');
+
+INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
+VALUES
+(10004, 200061, 10, 2, false, false, '07:30', '15:30'),
+(10004, 200062, 10, 2, false, false, '07:45', '15:45'),
+(10004, 200063, 10, 2, false, false, '07:15', '15:15');
+
+INSERT INTO tbl_dole_rates(id, name, rate) VALUES
+(1, 'OT ADDITIONAL PAY', 0.30)
+(2, 'ND ADDITIONAL PAY', 0.30)
+(3, 'RH ADDITIONAL PAY', 1.00)
+(4, 'RHOT ADDITIONAL PAY', 0.30)
+(5, 'RH ADDITIONAL PAY', 0.30)
+(6, 'RHOT ADDITIONAL PAY', 0.30)
+
+INSERT INTO tbl_dole_times(id, name, time) VALUES
+(1, 'START ND', '22:00')
+
+-- INSERT INTO tbl_dole_(id, name, rate) VALUES
+-- (1, "OT ADDITIONAL PAY", 0.30)

@@ -9,13 +9,13 @@
           {{{selectedDate}}}
         </p>
         <p class="fw-bold">
-          REG 
+          REG
         </p>
 
         <div class="row">
           <form class="form-group mb-0 w-4 col-sm-auto" id="dateForm" method="POST" action="/timekeeping" novalidate>
-            <input class="btn btn-sm btn-outline-primary" id="calendar_test" name="timekeeping_date"
-              type="datetime-local" placeholder="Select Date" style="width: 90px;" onchange="submitForm()">
+            <input class="btn btn-sm btn-outline-primary" id="calendar" name="timekeeping_date"
+              type="datetime-local" placeholder="Select Date" style="width: 90px;" onchange="submitForm()" />
           </form>
           <form class="form-group mb-0 w-4 col-sm-auto pl-0">
             <select class="btn btn-sm btn-outline-primary">
@@ -27,12 +27,6 @@
             </select>
           </form>
         </div>
-
-
-        {{!-- <a class="btn btn-sm btn-outline-primary" type="date"> Select Day</a> --}}
-        {{!-- <button class="btn btn-sm btn-outline-primary"><i class="bi bi-calendar-event"></i> Select Day</button>
-        --}}
-        {{!-- <button class="btn btn-sm btn-outline-primary">Edit Day Type</button> --}}
       </div>
     </div>
   </div>
@@ -77,7 +71,7 @@
 <div class="row">
   <div class="col-sm-3">
     <form class="">
-      <input type="text" class="form-control form-control-sm" placeholder="🔎︎ Search for Employee">
+      <input type="text" class="form-control form-control-sm" placeholder="🔎︎ Search for Employee" />
     </form>
   </div>
   <div class="col-sm-2 px-0">
@@ -92,9 +86,12 @@
     </form>
   </div>
   <div class="col-sm-7 text-end">
+    <a href="/timekeeping/add-record" class="btn btn-primary btn-sm" type="button"><i
+        class="bi bi-file-earmark-spreadsheet-fill"></i> Add Record</a>
     <a href="/timekeeping/add-timesheet" class="btn btn-primary btn-sm" type="button"><i
         class="bi bi-file-earmark-spreadsheet-fill"></i> Import CSV</a>
-    <a class="btn btn-primary btn-sm" type="button"><i class="bi bi-ui-checks"></i> Approve All</a>
+    <a class="btn btn-primary btn-sm" type="button"><i class="bi bi-ui-checks"></i>
+      Approve All</a>
   </div>
 </div>
 <div class="row">
@@ -109,24 +106,66 @@
               <th scope="col">Branch</th>
               <th scope="col">Start Time</th>
               <th scope="col">End Time</th>
-              <th scope="col">Overtime Hrs</th>
+              <th scope="col">OT Hrs</th>
               <th scope="col">ND Hrs</th>
               <th scope="col">Total Hrs</th>
               <th scope="col">Actions</th>
             </thead>
             <tbody>
-              {{#each rows }}
+              {{#each rows}}
               <tr>
-                <td scope="row">{{this.emp_id}}</td>
-                <td>{{this.name}}</td>
-                <td>{{this.department}}</td>
-                <td>{{this.position}}</td>
-                <td>{{this.address}}</td>
-                <td>{{this.contact}}</td>
-                <td>{{this.email}}</td>
-                <td>{{this.date_hired}}</td>
-                <td>
-                  <a type="button" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i> View Profile</a>
+                <td scope="row">{{this.dtr_id}}</td>
+                <td>{{this.employee_name}}</td>
+                <td>{{this.branch_name}}</td>
+                <td>{{this.start_time}}</td>
+                <td>{{this.close_time}}</td>
+                <td>{{this.overtime_hours}}</td>
+                <td>{{this.night_differential_hours}}</td>
+                <td>{{this.total_hours}}</td>
+                <td class="d-flex gap-2">
+                  <form action="/timekeeping/{{this.dtr_id}}/approve" method="POST" class="mb-0 d-flex align-center">
+                    <div class="d-flex gap-3">
+                      <div class="form-check mx-sm-2 align-self-center mt-1 mb-0">
+                        <label class="form-check-label mb-0">
+                          <input type="checkbox" class="form-check-input" id="hasOT" name="hasOT" {{#if
+                            this.hasot}}checked{{/if}}>
+                          Overtime
+                          <i class="input-helper"></i>
+                        </label>
+                      </div>
+                      <div class="form-check mx-sm-2 align-self-center align-middle mt-1 mb-0">
+                        <label class="form-check-label  mb-0">
+                          <input type="checkbox" class="form-check-input" id="hasBreak" name="hasBreak" {{#if
+                            this.hasbreak}}checked{{/if}}>
+                          Break
+                          <i class="input-helper"></i>
+                        </label>
+                      </div>
+                      <button
+                        class="btn m-0 py-0 {{#equals this.status 1}}btn-inverse-primary disabled{{else}} btn-primary{{/equals}} same-width-button"
+                        type="submit">
+                        {{#equals this.status 1}}
+                        Approved
+                        {{else}}
+                        Approve
+                        {{/equals}}
+                      </button>
+
+                    </div>
+                  </form>
+                  <div class="d-flex align-self-center">
+                    <div class="dropdown pl-1">
+                      <button class="btn btn-primary btn-sm p-2" type="button" data-toggle="dropdown"><i
+                          class="bi bi-pencil-square"></i></button>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/timekeeping/edit-record/{{this.dtr_id}}">Alter</a>
+                        <div class="dropdown-divider"></div>
+                        <form class="dropdown-item" action="/timekeeping/{{this.dtr_id}}/delete" method="POST" >
+                          <button  class="dropdown-item" type="submit">Delete</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
               {{/each}}
@@ -139,19 +178,11 @@
 </div>
 
 <script>
-
   document.addEventListener('DOMContentLoaded', function () {
-
-    const calendar = flatpickr("#calendar_test", {
-      enableTime: false,
-      onChange: function (selectedDates, dateStr, instance) {
-        submitForm();
-      }
-    });
-
-    function submitForm() {
-      document.getElementById('dateForm').submit();
-    }
+    const calendar =
+      flatpickr("#calendar", {
+        enableTime: false, onChange: function
+          (selectedDates, dateStr, instance) { submitForm(); }
+      }); function submitForm() { document.getElementById('dateForm').submit(); }
   });
-
 </script>

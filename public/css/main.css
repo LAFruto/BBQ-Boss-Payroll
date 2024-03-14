@@ -1,19 +1,17 @@
-.main-panel {
+/* .main-panel {
     background-color: rgba(240, 79, 37, 0.05);
 }
 
 .logo {
     height: 500px;
-    /* width: 150px; */
 }
 
-/* Define custom stripe colors for even and odd rows */
 .table-striped tbody tr:nth-of-type(odd) {
     background-color: rgb(255, 255, 255) !important; 
 }
 .table-striped tbody tr:nth-of-type(even) {
     background-color: rgb(255, 245, 245) !important;
-}
+} */
 
     /* Hide the default arrow icon */
     input[type="date"]::-webkit-calendar-picker-indicator {

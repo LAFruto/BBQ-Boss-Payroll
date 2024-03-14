@@ -2393,6 +2393,12 @@ textarea.is-invalid.tt-hint {
   }
 }
 
+.same-width-button {
+  flex: 1; /* Make the buttons flexible */
+  width: 0; /* Reset the default width */
+  min-width: 120px; /* Set a minimum width */
+}
+
 .btn, .fc button, .ajax-upload-dragdrop .ajax-file-upload, .swal2-modal .swal2-buttonswrapper .swal2-styled, .swal2-modal .swal2-buttonswrapper .swal2-styled.swal2-confirm, .swal2-modal .swal2-buttonswrapper .swal2-styled.swal2-cancel, .wizard > .actions a {
   display: inline-block;
   font-weight: 400;

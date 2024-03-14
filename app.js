@@ -29,9 +29,20 @@ app.use(session({
 // Static files
 app.use(express.static('public'));
 
-// Templating Engine
-app.engine('hbs', exphbs.engine( {extname: '.hbs' }));
+const hbs = exphbs.create({
+  extname: '.hbs',
+  helpers: {
+    equals: function(arg1, arg2, options) {
+      return arg1 === arg2 ? options.fn(this) : options.inverse(this);
+    },
+    ifCond: function(arg1, arg2, options) {
+      return arg1 === arg2 ? options.fn(this) : options.inverse(this);
+    }
+  }
+});
+app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
+
 
 // Connection Pool
 const pool = new Pool({

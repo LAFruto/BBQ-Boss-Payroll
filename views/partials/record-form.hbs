@@ -1,0 +1,96 @@
+<div class="row">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title">Add Record</h4>
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="form-group">
+            <label class="col-form-label">
+              Employee ID
+            </label>
+            <input 
+              type="text" 
+              class="form-control form-control-md"
+              id="employee_id"
+              name="employee_id"
+            />
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="form-group">
+            <label class="col-form-label">
+              Date
+            </label>
+            <input
+              class="form-control"
+              id="record_date"
+              name="record_date"
+              type="datetime-local"
+              placeholder="Select Date"
+            />
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="form-group">
+            <label class="col-form-label">
+              Branch
+            </label>
+            <select
+              class="form-control form-select"
+              name="branch_id"
+              style="color: black;"
+            >
+              {{#each rows}}
+                <option value="{{branch_id}}">{{branch_name}}</option>
+              {{/each}}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="form-group">
+            <label class="col-form-label">
+              Start Time
+            </label>
+            <input 
+            class="form-control" 
+            name="record_start_time" 
+            type="time" />
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="form-group">
+            <label class="col-form-label">
+              End Time
+            </label>
+            <input 
+            class="form-control" 
+            name="record_end_time" 
+            type="time" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-auto">
+          <button class="btn btn-primary">
+            Submit
+          </button>
+        </div>
+        <div class="col-sm-auto">
+          <a href="/timekeeping/" class="btn btn-secondary">
+            Cancel
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () { const calendar =
+  flatpickr("#record_date", { defaultDate: "today", enableTime: false, onChange:
+  function (selectedDates, dateStr, instance) { submitForm(); } }); function
+  submitForm() { document.getElementById('dateForm').submit(); } });
+</script>

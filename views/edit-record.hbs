@@ -1,0 +1,8 @@
+
+
+
+{{#each rows}}
+    <form class="row g-3 needs-validation" action="/timekeeping/{{this.dtr_id}}/edit-record/" method="POST" novalidate>
+        {{> edit-record-form}}
+    </form>
+{{/each}}
