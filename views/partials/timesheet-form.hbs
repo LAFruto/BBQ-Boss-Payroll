@@ -1,5 +1,4 @@
 <div class="row">
-
   <div class="card">
     <div class="card-body">
       <h4>Timekeeping Form</h4>
@@ -37,27 +36,24 @@
                   </select>
                 </div>
               </div>
-
-
             </div>
           </div>
         </div>
-        <div class="row">
           <div class="col-sm-4">
-            <form class="" method="POST" action="/timekeeping/add-timesheet">
             <div class="form-group">
               <label class="col-form-label">
                 Attach CSV file
               </label>
-              <input class="form-control" name="xlsx" type="file" />
+              <!-- file needs to be retained upon render -->
+              <input class="form-control" name="excel" type="file" value = {{ fileValue }} />
             </div>
-            </form>
           </div>
+        <div class="row">
         </div>
       </div>
       <div class="row">
         <div class="col-sm-auto">
-          <button class="btn btn-primary">
+          <button class="btn btn-primary" type="submit">
             Import File
           </button>
         </div>

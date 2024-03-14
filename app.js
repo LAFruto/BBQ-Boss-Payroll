@@ -3,7 +3,6 @@ const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const flatpickr = require("flatpickr");
-// const mysql = require('mysql');
 const { Pool } = require('pg');
 
 require('dotenv').config();
@@ -24,7 +23,6 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
-
 
 // Static files
 app.use(express.static('public'));
