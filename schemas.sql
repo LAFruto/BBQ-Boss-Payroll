@@ -96,11 +96,7 @@ CREATE TABLE tbl_positions (
 	name VARCHAR(50),
 	details VARCHAR(255),
 	salary_rate DECIMAL(9, 2)
-	
-	/* The following are derived: 
-		hourly_rate 
-		daily_rate 
-	*/
+
 );
 
 CREATE TABLE tbl_trainees (
@@ -220,10 +216,7 @@ CREATE TABLE tbl_accounts (
 CREATE TABLE tbl_payrolls (
 	id SERIAL PRIMARY KEY,
 	period_id INT,
-	FOREIGN KEY(period_id) REFERENCES tbl_periods(id),
-	account_id INT,
-	FOREIGN KEY(account_id) REFERENCES tbl_accounts(id)
-	-- net pay is derived
+	FOREIGN KEY(period_id) REFERENCES tbl_periods(id)
 );
 
 CREATE TABLE tbl_charges (
@@ -254,8 +247,11 @@ CREATE TABLE tbl_daily_time_records (
 	FOREIGN KEY(branch_id) REFERENCES tbl_branches(id),
 	status_id INT,
 	FOREIGN KEY(status_id) REFERENCES tbl_statuses(id),
-	hasOT Boolean,
-	hasBreak Boolean
+	hasOT Boolean DEFAULT false,
+	hasBreak Boolean DEFAULT false,
+	
+	start_time Time,
+	end_time Time
 );
 
 CREATE TABLE tbl_sss (
@@ -277,6 +273,14 @@ CREATE TABLE tbl_dole_rates (
 	rate DECIMAL(2, 5)
 );
 
+CREATE TABLE tbl_emp_to_payrolls (
+	emp_id INT,
+	FOREIGN KEY(emp_id) REFERENCES tbl_employees(id),
+	payroll_id INT,
+	FOREIGN KEY(payroll_id) REFERENCES tbl_payrolls(id),
+	UNIQUE(emp_id, payroll_id)
+);
+
 -----------------------QUERIES-------------------------
 
 ALTER SEQUENCE tbl_employees_id_seq RESTART WITH 10001;
@@ -293,6 +297,33 @@ ALTER SEQUENCE tbl_activities_id_seq RESTART WITH 800001;
 ALTER SEQUENCE tbl_accounts_id_seq RESTART WITH 901;
 
 -----------------------QUERIES-------------------------
+
+INSERT INTO tbl_day_types(details) VALUES 
+('REG'),
+('RH'),
+('SH');
+
+-- DATES -- 
+-- Delete existing data from tbl_dates (if any)
+DELETE FROM tbl_dates;
+
+-- Insert dates for the year 2024
+WITH RECURSIVE dates AS (
+  SELECT 
+    1 AS id, 
+    1 AS day_type_id, 
+    CAST('2024-01-01' AS TIMESTAMP) AS date -- Cast to TIMESTAMP here
+  UNION ALL
+  SELECT 
+    id + 1, 
+    1, 
+    date + INTERVAL '1 day' AS date
+  FROM dates
+  WHERE date < '2025-01-01'
+)
+INSERT INTO tbl_dates (id, day_type_id, date)
+SELECT id, day_type_id, date::DATE
+FROM dates;
 
 -- acc type --
 INSERT INTO tbl_account_types(type, details) values
@@ -393,21 +424,188 @@ INSERT INTO tbl_cities(province_id, name, zip_code) values
 
 -- barangay --
 INSERT INTO tbl_barangays(city_id, name) values
-(1, 'Dacudao'),
-(1, 'Daliao'),
-(1, 'Panacan'),
-(1, 'Tibungco'),
-(1, 'Cabantian'),
+(1, 'Acacia'),
 (1, 'Agdao'),
-(1, 'Lapu-Lapu'),
-(1, 'Rafael Castillo'),
-(1, 'Sasa'),
-(1, 'Tigatto'),
-(1, 'Matina Aplaya'),
-(1, 'Maa'),
+(1, 'Alambre'),
+(1, 'Alejandra Navarro (Lasang)'),
+(1, 'Alfonso Angliongto Sr.'),
+(1, 'Angalan'),
+(1, 'Atan-Awe'),
+(1, 'Baganihan'),
+(1, 'Bago Aplaya'),
+(1, 'Bago Gallera'),
+(1, 'Bago Oshiro'),
+(1, 'Baguio'),
+(1, 'Balengaeng'),
+(1, 'Baliok'),
+(1, 'Bangkas Heights'),
+(1, 'Bantol'),
+(1, 'Baracatan'),
+(1, 'Barangay 10-A'),
+(1, 'Barangay 11-A'),
+(1, 'Barangay 12-B'),
+(1, 'Barangay 13-B'),
+(1, 'Barangay 14-B'),
+(1, 'Barangay 15-B'),
+(1, 'Barangay 16-B'),
+(1, 'Barangay 17-B'),
+(1, 'Barangay 18-B'),
+(1, 'Barangay 19-B'),
+(1, 'Barangay 1-A'),
+(1, 'Barangay 20-B'),
+(1, 'Barangay 21-C'),
+(1, 'Barangay 22-C'),
+(1, 'Barangay 23-C'),
+(1, 'Barangay 24-C'),
+(1, 'Barangay 25-C'),
+(1, 'Barangay 26-C'),
+(1, 'Barangay 27-C'),
+(1, 'Barangay 28-C'),
+(1, 'Barangay 29-C'),
+(1, 'Barangay 2-A'),
+(1, 'Barangay 30-C'),
+(1, 'Barangay 31-D'),
+(1, 'Barangay 32-D'),
+(1, 'Barangay 33-D'),
+(1, 'Barangay 34-D'),
+(1, 'Barangay 35-D'),
+(1, 'Barangay 36-D'),
+(1, 'Barangay 37-D'),
+(1, 'Barangay 38-D'),
+(1, 'Barangay 39-D'),
+(1, 'Barangay 3-A'),
+(1, 'Barangay 40-D'),
+(1, 'Barangay 4-A'),
+(1, 'Barangay 5-A'),
+(1, 'Barangay 6-A'),
+(1, 'Barangay 7-A'),
+(1, 'Barangay 8-A'),
+(1, 'Barangay 9-A'),
+(1, 'Bato'),
+(1, 'Bayabas'),
+(1, 'Biao Escuela'),
+(1, 'Biao Guianga'),
+(1, 'Biao Joaquin'),
+(1, 'Binugao'),
+(1, 'Bucana'),
+(1, 'Buda'),
+(1, 'Buhangin'),
+(1, 'Bunawan'),
+(1, 'Cabantian'),
+(1, 'Cadalian'),
+(1, 'Calinan'),
+(1, 'Callawa'),
+(1, 'Camansi'),
+(1, 'Carmen'),
 (1, 'Catalunan Grande'),
 (1, 'Catalunan Pequeño'),
-(1, 'Bucana');
+(1, 'Catigan'),
+(1, 'Cawayan'),
+(1, 'Centro (San Juan)'),
+(1, 'Colosas'),
+(1, 'Communal'),
+(1, 'Crossing Bayabas'),
+(1, 'Dacudao'),
+(1, 'Dalag'),
+(1, 'Dalagdag'),
+(1, 'Daliao'),
+(1, 'Daliaon Plantation'),
+(1, 'Datu Salumay'),
+(1, 'Dominga'),
+(1, 'Dumoy'),
+(1, 'Eden'),
+(1, 'Fatima (Benowang)'),
+(1, 'Gatungan'),
+(1, 'Gov. Paciano Bangoy'),
+(1, 'Gov. Vicente Duterte'),
+(1, 'Gumalang'),
+(1, 'Gumitan'),
+(1, 'Ilang'),
+(1, 'Inayangan'),
+(1, 'Indangan'),
+(1, 'Kap. Tomas Monteverde Sr.'),
+(1, 'Kilate'),
+(1, 'Lacson'),
+(1, 'Lamanan'),
+(1, 'Lampianao'),
+(1, 'Langub'),
+(1, 'Lapu-lapu'),
+(1, 'Leon Garcia Sr.'),
+(1, 'Lizada'),
+(1, 'Los Amigos'),
+(1, 'Lubogan'),
+(1, 'Lumiad'),
+(1, 'Ma-a'),
+(1, 'Mabuhay'),
+(1, 'Magsaysay'),
+(1, 'Magtuod'),
+(1, 'Mahayag'),
+(1, 'Malabog'),
+(1, 'Malagos'),
+(1, 'Malamba'),
+(1, 'Manambulan'),
+(1, 'Mandug'),
+(1, 'Manuel Guianga'),
+(1, 'Mapula'),
+(1, 'Marapangi'),
+(1, 'Marilog'),
+(1, 'Matina Aplaya'),
+(1, 'Matina Biao'),
+(1, 'Matina Crossing'),
+(1, 'Matina Pangi'),
+(1, 'Megkawayan'),
+(1, 'Mintal'),
+(1, 'Mudiang'),
+(1, 'Mulig'),
+(1, 'New Carmen'),
+(1, 'New Valencia'),
+(1, 'Pampanga'),
+(1, 'Panacan'),
+(1, 'Panalum'),
+(1, 'Pandaitan'),
+(1, 'Pangyan'),
+(1, 'Paquibato'),
+(1, 'Paradise Embak'),
+(1, 'Rafael Castillo'),
+(1, 'Riverside'),
+(1, 'Salapawan'),
+(1, 'Salaysay'),
+(1, 'Saloy'),
+(1, 'San Antonio'),
+(1, 'San Isidro (Licanan)'),
+(1, 'Santo Niño'),
+(1, 'Sasa'),
+(1, 'Sibulan'),
+(1, 'Sirawan'),
+(1, 'Sirib'),
+(1, 'Suawan (Tuli)'),
+(1, 'Subasta'),
+(1, 'Sumimao'),
+(1, 'Tacunan'),
+(1, 'Tagakpan'),
+(1, 'Tagluno'),
+(1, 'Tagurano'),
+(1, 'Talandang'),
+(1, 'Talomo'),
+(1, 'Talomo River'),
+(1, 'Tamayong'),
+(1, 'Tambobong'),
+(1, 'Tamugan'),
+(1, 'Tapak'),
+(1, 'Tawan-tawan'),
+(1, 'Tibuloy'),
+(1, 'Tibungco'),
+(1, 'Tigatto'),
+(1, 'Toril'),
+(1, 'Tugbok'),
+(1, 'Tungakalan'),
+(1, 'Ubalde'),
+(1, 'Ula'),
+(1, 'Vicente Hizon Sr.'),
+(1, 'Waan'),
+(1, 'Wangan'),
+(1, 'Wilfredo Aquino'),
+(1, 'Wines');
 
 -- activity type --
 INSERT INTO tbl_activity_types(type) values 
@@ -454,16 +652,15 @@ INSERT INTO tbl_emp_to_contacts (emp_id, contact_id) VALUES
 (10003, 3),
 (10004, 4);
 
-
-INSERT INTO tbl_addresses(type) VALUES
-(1, 'Quirino')
-(2, 'Lanang')
-(3, 'Matina')
-(4, 'Quimpo')
+INSERT INTO tbl_addresses(address) VALUES
+('Quirino'),
+('Lanang'),
+('Matina'),
+('Quimpo');
 
 INSERT INTO tbl_branches(address_id, starting_hrs, closing_hrs) 
 VALUES
 ( 1, '10:30', '01:30'),
-( 2, '10:00', '00:00'), -- Assuming '00:00' represents midnight
+( 2, '10:00', '00:00'),
 ( 3, '10:30', '01:30'),
 ( 4, '10:30', '01:30');

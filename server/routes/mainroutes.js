@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const loginController = require('../controllers/loginController');
 const dashboardController = require('../controllers/dashboardController');
 const employeeController = require('../controllers/employeeController');
@@ -7,6 +8,19 @@ const payrollController = require('../controllers/payrollController');
 const timekeepingController = require('../controllers/timekeepingController');
 const leavesController = require('../controllers/leavesController');
 const settingsController = require('../controllers/settingsController');
+
+// Set up Multer storage
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'received_files/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname)
+    }
+})
+
+// Set up Multer middleware
+const upload = multer({ storage: fileStorage});
 
 // LOGIN ROUTES
 router.get('/', loginController.view);
@@ -33,15 +47,15 @@ router.get('/payroll/convert-mbos', payrollController.form)
 // TIMEKEEPING ROUTES
 router.get('/timekeeping', timekeepingController.view)
 router.post('/timekeeping', timekeepingController.date)
-
-router.post('/timekeeping/add-timesheet', timekeepingController.display)
 router.get('/timekeeping/add-timesheet', timekeepingController.form)
+
+// Multer middleware to handle file upload
+router.post('/timekeeping/add-timesheet', upload.single('excel'), timekeepingController.submit);
 
 // LEAVES ROUTES
 router.get('/leaves', leavesController.view)
 
 // SETTINGS ROUTES
 router.get('/settings', settingsController.view)
-
 
 module.exports = router;
