@@ -34,7 +34,9 @@ JOIN
 JOIN 
   tbl_rateclasses rc ON p.rateclass_id = rc.id
 LEFT JOIN 
-  tbl_emp_to_contacts etc ON e.id = etc.emp_id`;
+  tbl_emp_to_contacts etc ON e.id = etc.emp_id
+ORDER BY
+  e.id`;
 
   pool.connect((err, connection) => {
     if (err) throw err; // not connected

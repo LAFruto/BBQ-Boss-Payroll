@@ -152,7 +152,6 @@ exports.record_edit = (req, res) =>  {
 
 exports.record_update  = (req, res) => {
   
-  console.log("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
   const { branch_id, start_time, end_time } = req.body;
   console.log(branch_id);
   console.log(start_time);
@@ -339,45 +338,54 @@ function fetchSelectedDate(selectedDate, res) {
     if (err) throw err;
 
     const dateQuery = `
-    SELECT * FROM tbl_dates WHERE date = $1`;
+      SELECT * FROM tbl_dates WHERE date = $1`;
 
     connection.query(dateQuery, [selectedDate], (err, { rows }) => {
       if (err) throw err;
 
       const dateId = rows[0].id;
       const dtrQuery = `
-		SELECT 
-		dtr.id AS dtr_id,
-		CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
-		a.address AS branch_name,
-		TO_CHAR(dtr.start_time, 'HH24:MI') AS start_time,
-		TO_CHAR(dtr.end_time, 'HH24:MI') AS close_time,
-    dtr.hasot AS hasot,
-    dtr.hasbreak AS hasbreak,
-    dtr.status_id AS status,
-		CASE 
-			WHEN dtr.hasOT = false THEN 0
-			WHEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) > 8 THEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) - 8
-			ELSE 0
-		END AS overtime_hours,
-		CASE 
-			WHEN dtr.end_time > '22:00' THEN EXTRACT(HOUR FROM dtr.end_time - '22:00')
-			ELSE 0
-		END AS night_differential_hours,
-			EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) AS total_hours
-		FROM 
-			tbl_daily_time_records AS dtr
-		INNER JOIN tbl_employees AS e ON dtr.emp_id = e.id
-		INNER JOIN tbl_branches AS b ON dtr.branch_id = b.id
-		INNER JOIN tbl_addresses AS a ON b.address_id = a.id
-		WHERE 
-			dtr.date_id = $1;
-        `;
+        SELECT 
+          dtr.id AS dtr_id,
+          CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
+          a.address AS branch_name,
+          TO_CHAR(dtr.start_time, 'HH24:MI') AS start_time,
+          TO_CHAR(dtr.end_time, 'HH24:MI') AS close_time,
+          dtr.hasot AS hasot,
+          dtr.hasbreak AS hasbreak,
+          dtr.status_id AS status,
+          CASE 
+            WHEN dtr.hasOT = false THEN 0
+            WHEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) > 8 THEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) - 8
+            ELSE 0
+          END AS overtime_hours,
+          CASE 
+          WHEN EXTRACT(HOUR FROM dtr.end_time) < 22 AND EXTRACT(HOUR FROM dtr.end_time) < 2 THEN 
+            EXTRACT(HOUR FROM dtr.end_time - '22:00:00') + 23
+          WHEN EXTRACT(HOUR FROM dtr.end_time) > 22 THEN 
+            EXTRACT(HOUR FROM dtr.end_time - '22:00:00')
+          ELSE 
+            0
+          END AS night_differential_hours,
+          CASE 
+            WHEN EXTRACT(HOUR FROM dtr.end_time) < EXTRACT(HOUR FROM dtr.start_time) THEN 
+              EXTRACT(HOUR FROM '24:00:00' - dtr.start_time) + EXTRACT(HOUR FROM dtr.end_time)
+            ELSE
+              EXTRACT(HOUR FROM dtr.end_time - dtr.start_time)
+          END AS total_hours
+        FROM 
+          tbl_daily_time_records AS dtr
+        INNER JOIN tbl_employees AS e ON dtr.emp_id = e.id
+        INNER JOIN tbl_branches AS b ON dtr.branch_id = b.id
+        INNER JOIN tbl_addresses AS a ON b.address_id = a.id
+        WHERE 
+          dtr.date_id = $1`;
 
       connection.query(dtrQuery, [dateId], (err, { rows }) => {
         connection.release();
         if (!err) {
           res.render("timekeeping", { rows: rows, selectedDate });
+          console.log(rows);
         } else {
           console.log(err);
         }
@@ -386,10 +394,8 @@ function fetchSelectedDate(selectedDate, res) {
   });
 };
 
-exports.submit = (req, res) => {
-
-  // make sure that branch ideally returns an id, else a dropdown of strings will do
-  const {branch} = req.body;
+exports.submit = async (req, res) => {
+  const { branch } = req.body;
 
   let branch_id = null;
 
@@ -410,14 +416,14 @@ exports.submit = (req, res) => {
 
   if (!req.file) {
     res.render('add-timesheet', { alert: 'No file uploaded' });
-    return; // Exit early if no file uploaded
+    return;
   }
 
   const workbook = xlsx.readFile(req.file.path);
   const sheetName = workbook.SheetNames[0];
   let jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
   const headers = jsonData[0].map(header => header.replace(/\s/g, '_'));
-  jsonData = jsonData.slice(1); // Remove headers from data array
+  jsonData = jsonData.slice(1);
 
   // Convert to JSON object with modified headers
   jsonData = jsonData.map(row => {
@@ -437,51 +443,50 @@ exports.submit = (req, res) => {
   // Generate daily time records
   const dtrList = generateDailyTimeRecords(jsonData);
 
-  // Iterate over dtrList and insert records
-  dtrList.forEach(dtr => {
-    const {First_Name, Last_Name, Emp_ID, Date, Start_Time, End_Time } = dtr;
+  let totalRows = dtrList.length;
+  let counter = 0;
 
-    // Get date_id from tbl_dates
-    const dateQuery = 'SELECT id FROM tbl_dates WHERE date = $1';
+  for (const dtr of dtrList) {
+    const { First_Name, Last_Name, Emp_ID, Date, Start_Time, End_Time } = dtr;
 
-    // use Date for multidate population, if daily, use dtrDate
+    try {
+      const client = await pool.connect();
 
-    pool.query(dateQuery, [Date], (dateErr, dateResult) => {
-      if (dateErr) {
-        console.error('Error fetching date ID:', dateErr);
-        // Handle error
-        return;
-      }
+      try {
+        // Get date_id from tbl_dates
+        const dateQuery = 'SELECT id FROM tbl_dates WHERE date = $1';
+        const dateResult = await client.query(dateQuery, [Date]);
 
-      if (dateResult.rows.length === 0) {
-        console.error('Date not found in tbl_dates');
-        // Handle error: Date not found
-        return;
-      }
-
-      const date_id = dateResult.rows[0].id;
-
-      // Insert record into tbl_daily_time_records
-      const insertQuery = `
-        INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasot, hasbreak, start_time, end_time)
-        VALUES ($1, $2, $3, 2, false, false, $4, $5)
-      `;
-
-      const values = [Emp_ID, date_id, branch_id, Start_Time, End_Time];
-      console.log(values);
-
-      pool.query(insertQuery, values, (insertErr, insertResult) => {
-        if (insertErr) {
-          console.error('Error inserting record:', insertErr);
-          // Handle insertion error
-          return;
+        if (dateResult.rows.length === 0) {
+          console.error('Date not found in tbl_dates');
+          // Handle error: Date not found
+          continue; // Skip to next iteration
         }
 
+        const date_id = dateResult.rows[0].id;
+
+        // Insert record into tbl_daily_time_records
+        const insertQuery = `
+          INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasot, hasbreak, start_time, end_time)
+          VALUES ($1, $2, $3, 2, false, false, $4, $5)
+        `;
+
+        const values = [Emp_ID, date_id, branch_id, Start_Time, End_Time];
+        await client.query(insertQuery, values);
+
         console.log('Record inserted successfully');
-        // Handle successful insertion
-      });
-    });
-  });
+        counter++;
+      } finally {
+        client.release(); // Release client after each query execution
+      }
+    } catch (error) {
+      console.error('Error inserting record:', error);
+      // Handle insertion error
+    }
+  }
+
+  console.log("Expected Records: " + totalRows);
+  console.log("Inserted Records: " + counter);
 
   res.render('add-timesheet', { alert: 'File uploaded to Database' });
 };
