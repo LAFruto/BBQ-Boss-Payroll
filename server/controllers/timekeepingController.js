@@ -345,41 +345,41 @@ function fetchSelectedDate(selectedDate, res) {
 
       const dateId = rows[0].id;
       const dtrQuery = `
-        SELECT 
-          dtr.id AS dtr_id,
-          CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
-          a.address AS branch_name,
-          TO_CHAR(dtr.start_time, 'HH24:MI') AS start_time,
-          TO_CHAR(dtr.end_time, 'HH24:MI') AS close_time,
-          dtr.hasot AS hasot,
-          dtr.hasbreak AS hasbreak,
-          dtr.status_id AS status,
-          CASE 
-            WHEN dtr.hasOT = false THEN 0
-            WHEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) > 8 THEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) - 8
-            ELSE 0
-          END AS overtime_hours,
-          CASE 
+      SELECT 
+        dtr.id AS dtr_id,
+        CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
+        a.address AS branch_name,
+        TO_CHAR(dtr.start_time, 'HH24:MI') AS start_time,
+        TO_CHAR(dtr.end_time, 'HH24:MI') AS close_time,
+        dtr.hasot AS hasot,
+        dtr.hasbreak AS hasbreak,
+        dtr.status_id AS status,
+        CASE 
+          WHEN dtr.hasOT = false THEN 0
+          WHEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) > 8 THEN ROUND((EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) - 8) + (EXTRACT(MINUTE FROM dtr.end_time - dtr.start_time) / 60), 2)
+          ELSE 0
+        END AS overtime_hours,
+        CASE 
           WHEN EXTRACT(HOUR FROM dtr.end_time) < 22 AND EXTRACT(HOUR FROM dtr.end_time) < 2 THEN 
-            EXTRACT(HOUR FROM dtr.end_time - '22:00:00') + 23
+            ROUND(((EXTRACT(HOUR FROM dtr.end_time - '22:00:00') + EXTRACT(MINUTE FROM dtr.end_time - '22:00:00') / 60) + 23), 2)
           WHEN EXTRACT(HOUR FROM dtr.end_time) > 22 THEN 
-            EXTRACT(HOUR FROM dtr.end_time - '22:00:00')
+            ROUND(((EXTRACT(HOUR FROM dtr.end_time - '22:00:00') + EXTRACT(MINUTE FROM dtr.end_time - '22:00:00') / 60)), 2)
           ELSE 
             0
-          END AS night_differential_hours,
-          CASE 
-            WHEN EXTRACT(HOUR FROM dtr.end_time) < EXTRACT(HOUR FROM dtr.start_time) THEN 
-              EXTRACT(HOUR FROM '24:00:00' - dtr.start_time) + EXTRACT(HOUR FROM dtr.end_time)
-            ELSE
-              EXTRACT(HOUR FROM dtr.end_time - dtr.start_time)
-          END AS total_hours
-        FROM 
-          tbl_daily_time_records AS dtr
-        INNER JOIN tbl_employees AS e ON dtr.emp_id = e.id
-        INNER JOIN tbl_branches AS b ON dtr.branch_id = b.id
-        INNER JOIN tbl_addresses AS a ON b.address_id = a.id
-        WHERE 
-          dtr.date_id = $1`;
+        END AS night_differential_hours,
+        CASE 
+          WHEN EXTRACT(HOUR FROM dtr.end_time) < EXTRACT(HOUR FROM dtr.start_time) THEN 
+            ROUND(((EXTRACT(HOUR FROM '24:00:00' - dtr.start_time) + EXTRACT(MINUTE FROM '24:00:00' - dtr.start_time) / 60) + (EXTRACT(HOUR FROM dtr.end_time) + EXTRACT(MINUTE FROM dtr.end_time) / 60)), 2)
+          ELSE
+            ROUND(((EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) + EXTRACT(MINUTE FROM dtr.end_time - dtr.start_time) / 60)), 2)
+        END AS total_hours
+      FROM 
+        tbl_daily_time_records AS dtr
+      INNER JOIN tbl_employees AS e ON dtr.emp_id = e.id
+      INNER JOIN tbl_branches AS b ON dtr.branch_id = b.id
+      INNER JOIN tbl_addresses AS a ON b.address_id = a.id
+      WHERE 
+        dtr.date_id = $1`;
 
       connection.query(dtrQuery, [dateId], (err, { rows }) => {
         connection.release();
