@@ -336,6 +336,12 @@ INSERT INTO tbl_accounts(acc_type, username, password) values
 
 -- period --
 INSERT INTO tbl_periods(start_date, end_date, payout_date) values 
+('2024-01-01', '2024-01-15', '2024-01-20'),
+('2024-01-16', '2024-01-31', '2024-02-05'),
+
+('2024-02-01', '2024-02-15', '2024-02-20'),
+('2024-02-16', '2024-02-29', '2024-03-05'),
+
 ('2024-03-01', '2024-03-15', '2024-03-20'),
 ('2024-03-16', '2024-03-31', '2024-04-05'),
 
@@ -650,15 +656,27 @@ INSERT INTO tbl_employees (id, position_id, gender_id, civil_id, emp_fname, emp_
 INSERT INTO tbl_contacts (contact_no) VALUES
 ('09123456789'),
 ('09234567890'),
-('09345678901'),
-('09456789012');
+('09345478501'),
+('09452289012'),
+('09123151789'),
+('09234777890'),
+('09345678991'),
+('09256789912'),
+('09263456789'),
+('09375678912');
 
 -- Linking Employees with Contacts
 INSERT INTO tbl_emp_to_contacts (emp_id, contact_id) VALUES
 (10001, 1),
 (10002, 2),
 (10003, 3),
-(10004, 4);
+(10004, 4),
+(10005, 5),
+(10006, 6),
+(10007, 7),
+(10008, 8),
+(10009, 9),
+(10010, 10);
 
 INSERT INTO tbl_addresses(address) VALUES
 ('Quirino'),
