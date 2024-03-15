@@ -13,6 +13,7 @@ exports.view = async (req, res) => {
   let selected_period = req.query.selected_period;
 
   console.log("Selected Period:", selected_period);
+  
   console.log("GENERATED CURRENT PERIOD: ", await getCurrentPeriod());
   if (selected_period === undefined || selected_period === null) {
     current_period = await getCurrentPeriod();
@@ -23,8 +24,7 @@ exports.view = async (req, res) => {
     fetchPayrollData(selected_period, res);
   }
 };
-
-async function fetchSummary(period_id, emp_id) {
+async function fetchSummary(targetPeriod, targetEmp) {
   const periodQuery = `SELECT * FROM tbl_periods WHERE id = $1`;
 
   const dtrQuery = `
@@ -40,7 +40,8 @@ async function fetchSummary(period_id, emp_id) {
       dtr.hasot,
       dtr.hasbreak,
       d.day_type_id,
-      dtr.branch_id
+      dtr.branch_id,
+	  e.status
     FROM 
       tbl_daily_time_records dtr
     JOIN
@@ -53,19 +54,31 @@ async function fetchSummary(period_id, emp_id) {
       tbl_departments dpt ON p.department_id = dpt.id
     WHERE
       d.date BETWEEN $1 AND $2
-      AND dtr.emp_id = $3
+      AND dtr.emp_id = $3 AND e.status = 'Active'
     ORDER BY
       dtr.emp_id,
       d.date;
   `;
 
-  try {
-    const periodResult = await pool.query(periodQuery, [period_id]);
-    const periodStart = periodResult.rows[0].start_date;
-    const periodEnd = periodResult.rows[0].end_date;
 
-    const dtrResult = await pool.query(dtrQuery, [periodStart, periodEnd, emp_id]);
-    const dtrRows = dtrResult.rows;
+  try {
+    let periodResult = await pool.query(periodQuery, [targetPeriod]);
+
+    let periodStart = periodResult.rows[0].start_date;
+    let periodEnd = periodResult.rows[0].end_date;
+
+    let startYear = periodStart.getFullYear();
+    let startMonth = (periodStart.getMonth() + 1).toString().padStart(2, '0');
+    let startDay = periodStart.getDate().toString().padStart(2, '0');
+    let startDateString = `${startYear}-${startMonth}-${startDay}`;
+
+    let endYear = periodEnd.getFullYear();
+    let endMonth = (periodEnd.getMonth() + 1).toString().padStart(2, '0');
+    let endDay = periodEnd.getDate().toString().padStart(2, '0');
+    let endDateString = `${endYear}-${endMonth}-${endDay}`;
+
+    let dtrResult = await pool.query(dtrQuery, [startDateString, endDateString, targetEmp]);
+    let dtrRows = dtrResult.rows;
 
     let totalHrs = 0;
     let totalOvertimeHrs = 0;
@@ -74,54 +87,92 @@ async function fetchSummary(period_id, emp_id) {
     let netPay = 0;
     let totalDeductions = 0;
 
-    let baseTotal = 0 // total pay for base hrs (without overtime and nightdiff)
-    let overTimeTotal = 0 // total pay for overtime hrs
-    let nightDiffTotal = 0 // total pay for nightdiff hrs
+    let baseTotal = 0; // total pay for base hrs (without overtime and nightdiff)
+    let overTimeTotal = 0; // total pay for overtime hrs
+    let nightDiffTotal = 0; // total pay for nightdiff hrs
 
-    const name = dtrRows[0].employee_name
-    const dept = dtrRows[0].dept_name
-    const pos = dtrRows[0].position
-    const rate = dtrRows[0].salary_rate
+    let name = dtrRows[0].employee_name;
+    let dept = dtrRows[0].dept_name;
+    let pos = dtrRows[0].position;
+    let rate = parseInt(dtrRows[0].rate);
 
     // 2024 contribution basis (As of March)
     // Monthly contributions are divided into 2 since period is bi-monthly
-    const philhealthDeduct = rate * 0.025; // 5% monthly
+    let philhealthDeduct = rate * 0.025; // 5% monthly
     let pagibigDeduct = rate > 1500 ? rate * 0.01 : rate * 0.005; // 2% monthly for 1500 above rates, else 1% monthly
-    let sssDeduct = rate * 0.0225 // 4.5% monthly
+    let sssDeduct = rate * 0.0225; // 4.5% monthly
+
 
     for (const dtr of dtrRows) {
-      const { start_time, end_time, hasot, hasbreak} = dtr;
-
-      // Calculating work hours
-      let hours = (new Date(end_time) - new Date(start_time)) / (1000 * 60 * 60);
-      hours -= hasbreak ? 1 : 0; // Subtract break time if it exists
-
+      const { start_time, end_time, hasot, hasbreak, date } = dtr;
+      let ref_time = '22:00:00'; // night diff reference
+  
+      let inputDate = new Date(date);
+      let inputYear = inputDate.getFullYear();
+      let inputMonth = (inputDate.getMonth() + 1).toString().padStart(2, '0');
+      let inputDay = inputDate.getDate().toString().padStart(2, '0');
+      let startDateString = `${inputYear}-${inputMonth}-${inputDay}`;
+      let endDateString = null;
+  
+      // Adjust endDateString based on end_time
+      let endHourCheck = parseInt(end_time.split(':')[0]);
+      if (endHourCheck >= 0 && endHourCheck < 2) {
+          // If end_time is between 12:00 AM and 2:00 AM, increment the date by one day
+          let nextDate = new Date(inputYear, inputDate.getMonth(), inputDate.getDate() + 1);
+          let nextYear = nextDate.getFullYear();
+          let nextMonth = (nextDate.getMonth() + 1).toString().padStart(2, '0');
+          let nextDay = nextDate.getDate().toString().padStart(2, '0');
+          endDateString = `${nextYear}-${nextMonth}-${nextDay}`;
+      } else {
+          endDateString = startDateString;
+      }
+  
+      // Split the date and time strings
+      let [startHour, startMinute, startSecond] = start_time.split(':').map(Number);
+      let [endHour, endMinute, endSecond] = end_time.split(':').map(Number);
+      let [refHour, refMinute, refSecond] = ref_time.split(':').map(Number);
+  
+      let [startYear, startMonth, startDay] = startDateString.split('-');
+      let [endYear, endMonth, endDay] = endDateString.split('-');
+      let [refYear, refMonth, refDay] = startDateString.split('-'); // Using startDateString since refDate is based on start date
+  
+      // Construct Date objects for calculations
+      let startDate = new Date(startYear, startMonth - 1, startDay, startHour, startMinute, startSecond);
+      let endDate = new Date(endYear, endMonth - 1, endDay, endHour, endMinute, endSecond);
+      let refDate = new Date(refYear, refMonth - 1, refDay, refHour, refMinute, refSecond);
+  
+      let hours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
+  
+      // Subtract break time if applicable
+      hours -= hasbreak ? 1 : 0;
+  
       // Calculating overtime hours
       let overtime = hasot ? Math.max(hours - 8, 0) : 0;
-
+  
       // Calculating night differential hours
-      let nightdiff = 0;
-      const endHour = new Date(end_time).getHours();
-      if (endHour < 22) {
-        nightdiff = endHour >= 2 ? hours : hours + 23;
+      let nightdiff = ((refDate.getTime() / (1000 * 60 * 60)) - (endDate.getTime() / (1000 * 60 * 60)));
+  
+      // if nightdiff is negative, there is night differential
+      if (nightdiff < 0 && nightdiff > -4) {
+          nightdiff = Math.abs(nightdiff);
       } else {
-        nightdiff = hours;
+          nightdiff = 0;
       }
-
+  
       // Adding to totals
-      totalHrs += hours; 
+      totalHrs += hours;
       totalOvertimeHrs += overtime;
       totalNightDiffHrs += nightdiff;
-
+  
       // Calculating base pay
       baseTotal += rate * (hours - overtime - nightdiff);
-
+  
       // Calculating overtime pay
-      overTimeTotal += rate * 1.3 * overtime; // 30% higher than base rate
-
+      overTimeTotal += rate * 1.3 * overtime;
+  
       // Calculating night differential pay
-      nightDiffTotal += rate * 1.1 * nightdiff; // 10% higher than base rate
-    }
+      nightDiffTotal += rate * 1.1 * nightdiff;
+  }
 
     totalDeductions = sssDeduct + pagibigDeduct + philhealthDeduct;
 
@@ -131,27 +182,26 @@ async function fetchSummary(period_id, emp_id) {
     // Calculating net pay (gross pay - total deductions)
     netPay = grossPay - totalDeductions;
 
-  
-    console.log('Total Work Hours:', totalHrs.toFixed(2));
-    console.log('Total Overtime Hours:', totalOvertimeHrs.toFixed(2));
-    console.log('Total Night Differential Hours:', totalNightDiffHrs.toFixed(2));
+    // console.log('Total Work Hours:', totalHrs.toFixed(2));
+    // console.log('Total Overtime Hours:', totalOvertimeHrs.toFixed(2));
+    // console.log('Total Night Differential Hours:', totalNightDiffHrs.toFixed(2));
 
     result = {
-      ID: emp_id,
+      ID: targetEmp,
       Employee: name,
       Department: dept,
       Position: pos,
       Rate: rate,
-      Hours: totalHrs,
-      OverTime: totalOvertimeHrs,
-      NightDiff: totalNightDiffHrs,
-      Gross: grossPay,
-      Deductions: totalDeductions,
-      Net: netPay,
-      BaseTotal: baseTotal,
-      overTotal: overTimeTotal,
-      nightTotal: nightDiffTotal
-    }
+      Hours: totalHrs.toFixed(2),
+      OverTime: totalOvertimeHrs.toFixed(2),
+      NightDiff: totalNightDiffHrs.toFixed(2),
+      Gross: grossPay.toFixed(2),
+      Deductions: totalDeductions.toFixed(2),
+      Net: netPay.toFixed(2),
+      BaseTotal: baseTotal.toFixed(2),
+      overTotal: overTimeTotal.toFixed(2),
+      nightTotal: nightDiffTotal.toFixed(2)
+    };
 
     return result;
 
@@ -166,6 +216,7 @@ exports.form = (req, res) => {
 };
 
 async function fetchPayrollData(periodId, res) {
+  console.log("FETCHPAYROLLDATA: " + periodId);
   const query = `SELECT * FROM tbl_payrolls WHERE period_id = $1`;
   try {
     let period_list = await populatePeriodDropDown();
@@ -176,7 +227,7 @@ async function fetchPayrollData(periodId, res) {
         return;
       }
 
-      connection.query(query, [periodId], (err, results) => {
+      connection.query(query, [periodId], async (err, results) => { // Make the callback function async
         connection.release();
 
         if (err) {
@@ -185,18 +236,25 @@ async function fetchPayrollData(periodId, res) {
         }
 
         const payrolls = results.rows;
-
-        // FINAL HURR HURR DLE
         let finalList = [];
 
-        for (const payroll of payrolls) {
+        // Map each payroll to a Promise that resolves with its summary
+        const summaryPromises = payrolls.map(async (payroll) => {
           const {id, period_id, emp_id} = payroll;
+          const summary = await fetchSummary(period_id, emp_id);
+          return summary;
+        });
 
-          finalList.push(fetchSummary(period_id, emp_id));
-        }
+        // Wait for all summaries to be fetched
+        const summaries = await Promise.all(summaryPromises);
+
+        // Push the summaries into the final list
+        finalList.push(...summaries);
 
         periodId = parseInt(periodId);
         const currPeriod = period_list.find(period => period.id === periodId);
+
+        console.log(finalList);
 
         res.render("payroll", {rows: finalList, periods: period_list, currPeriod: currPeriod });
 

@@ -133,27 +133,25 @@
               <th scope="col">Position</th>
               <th scope="col">Rate</th>
               <th scope="col">Total Hrs</th>
+              <th scope="col">OT Hrs</th>
               <th scope="col">Gross Pay</th>
               <th scope="col">Deductions</th>
-              <th scope="col">Trainee</th>
               <th scope="col">Net Pay</th>
-              <th scope="col">Actions</th>
             <tbody>
               {{#each rows}}
-              {{!-- <tr>
-                <td scope="row">{{this.emp_id}}</td>
-                <td>{{this.name}}</td>
-                <td>{{this.department}}</td>
-                <td>{{this.position}}</td>
-                <td>{{this.address}}</td>
-                <td>{{this.contact}}</td>
-                <td>{{this.email}}</td>
-                <td>{{this.date_hired}}</td>
-                <td>
-                  <a type="button" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i>
-                    View Profile</a>
-                </td>
-              </tr> --}}
+              <tr>
+                <td scope="row">{{this.ID}}</td>
+                <td>{{this.Employee}}</td>
+                <td>{{this.Department}}</td>
+                <td>{{this.Position}}</td>
+                <td>{{this.Rate}}</td>
+                <td>{{this.Hours}}</td>
+                <td>{{this.OverTime}}</td>
+                <td>{{this.Gross}}</td>
+                <td>{{this.Deductions}}</td>
+                <td>{{this.Net}}</td>
+
+              </tr>
               {{/each}}
             </tbody>
           </table>

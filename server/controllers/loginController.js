@@ -54,7 +54,7 @@ exports.authenticate = (req, res) => {
         req.session.username = userData.username;
         req.session.acc_type = userData.acc_type;
         
-        res.redirect("/payroll");
+        res.redirect("/timekeeping");
       } else {
 				res.render("login", { alert: 'Incorrect login details', layout: "loginLayout" } )
 				console.log("Login failed");

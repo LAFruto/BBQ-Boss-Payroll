@@ -534,18 +534,30 @@ exports.submit = async (req, res) => {
   res.redirect('/timekeeping?alert=Import%20successful');
 };
 
+function isWhitespaceOrEmpty(str) {
+  return /^\s*$/.test(str);
+}
+
 function formatTime(timeString) {
-  const [hoursStr, minutesStr] = timeString.split(':');
-  const hours = hoursStr.padStart(2, '0');
-  const minutes = minutesStr.padStart(2, '0');
-  return `${hours}:${minutes}:00`;
+  if (!isWhitespaceOrEmpty(timeString)) {
+    const [hoursStr, minutesStr] = timeString.split(':');
+    const hours = hoursStr.padStart(2, '0');
+    const minutes = minutesStr.padStart(2, '0');
+    return `${hours}:${minutes}:00`;
+  } else {
+    return timeString;
+  }
 }
 
 function formatDate(dateString) {
+  if (!isWhitespaceOrEmpty(dateString)) {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const [day, monthStr, year] = dateString.split('-');
   const month = (months.indexOf(monthStr) + 1).toString().padStart(2, '0');
   return `${year}-${month}-${day}`;
+  } else {
+    return dateString;
+  }
 }
 
 function findClosestTime(times, targetTime) {
