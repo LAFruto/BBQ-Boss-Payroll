@@ -6,53 +6,40 @@
         <div class="col-sm-4">
           <div class="form-group">
             <label class="col-form-label">
-              Main Branch
+              Branch
             </label>
-            <input 
-              type="text" 
-              class="form-control form-control-md"
-              id="branch"
-              name="branch"
-              placeholder="Enter Branch Name"
-            />
-            {{!-- <select class="form-control form-select">
-              Test
-            </select> --}}
+            <select class="form-control form-select" name="branch" style="color: black;" required>
+              {{#each rows}}
+              <option value="{{branch_id}}">{{branch_name}}</option>
+              {{/each}}
+            </select>
           </div>
         </div>
         <div class="row">
-          <div class="col-sm-4">
-            <div class="form-group">
-              
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
           <div class="col-sm-4">
             <div class="form-group">
               <label class="col-form-label">
                 Attach CSV file
               </label>
               <!-- file needs to be retained upon render -->
-              <input class="form-control" name="excel" type="file" value = {{ fileValue }} />
+              <input class="form-control" name="excel" type="file" value={{fileValue}} />
             </div>
           </div>
+        </div>
         <div class="row">
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-auto">
-          <button class="btn btn-primary" type="submit">
-            Import File
-          </button>
-        </div>
-        <div class="col-sm-auto">
-          <button class="btn btn-secondary">
-            Cancel
-          </button>
+          <div class="col-sm-auto">
+            <button class="btn btn-primary" type="submit">
+              Import File
+            </button>
+          </div>
+          <div class="col-sm-auto">
+            <button class="btn btn-secondary">
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+

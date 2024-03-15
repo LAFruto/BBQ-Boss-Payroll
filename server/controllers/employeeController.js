@@ -1,7 +1,5 @@
-// const mysql = require('mysql');
 const { Pool } = require("pg");
 
-// Connection Pool
 const pool = new Pool({
   max: 100,
   host: process.env.DB_HOST,
@@ -33,7 +31,7 @@ exports.view = (req, res) => {
       e.status = 'Active'`;
 
   pool.connect((err, connection) => {
-    if (err) throw err; // not connected
+    if (err) throw err;
 
     connection.query(query, (err, { rows }) => {
       connection.release();
@@ -47,7 +45,6 @@ exports.view = (req, res) => {
   });
 };
 
-// Find user by Search
 exports.find = (req, res) => {
   const query = `SELECT 
       e.id AS employee_id,
@@ -79,18 +76,12 @@ exports.find = (req, res) => {
         TO_CHAR(e.date_hired, 'YYYY-MM-DD') ILIKE $1
       );`;
 
-  // filtering through dates needs parsing, utmost caution is advised
-
   let searchTerm = req.body.search;
 
   pool.connect((err, connection) => {
-    if (err) throw err; // not connected
-    console.log("Connected as ID " + connection.threadId);
+    if (err) throw err; 
 
-    // User the connection
     connection.query(query, ["%" + searchTerm + "%"], (err, { rows }) => {
-      console.log(`searchTerm`);
-      // When done with the connection, release it
       connection.release();
 
       if (!err) {
@@ -98,7 +89,6 @@ exports.find = (req, res) => {
       } else {
         console.log(err);
       }
-      console.log("The data from filtered employees table: \n", rows);
     });
   });
 };
@@ -185,7 +175,6 @@ exports.create = (req, res) => {
       return;
     }
 
-    // Insert into tbl_employees
     connection.query(
       employeeQuery,
       [
@@ -204,7 +193,6 @@ exports.create = (req, res) => {
       (err, employeeResult) => {
         const empId = employeeResult.rows[0].id;
 
-        // Insert into tbl_contacts
         connection.query(contactQuery, [contactNo], (err, contactResult) => {
           if (err) {
             connection.rollback(() => {
@@ -216,7 +204,6 @@ exports.create = (req, res) => {
 
           const contactId = contactResult.rows[0].id;
 
-          // Insert into tbl_emp_to_contacts
           connection.query(empToContactQuery, [empId, contactId], (err) => {
             if (err) {
               connection.rollback(() => {
@@ -226,7 +213,6 @@ exports.create = (req, res) => {
               return;
             }
 
-            console.log("Transaction committed successfully");
             res.redirect("/employee");
           });
         });
@@ -324,9 +310,6 @@ exports.edit = (req, res) => {
 };
 
 exports.update = (req, res) => {
-  console.log("-------------");
-  console.log(req.params.id);
-  console.log("-------------");
   const {
     positionId,
     genderId,
@@ -379,7 +362,6 @@ exports.update = (req, res) => {
       return;
     }
 
-    // Begin transaction
     connection.query("BEGIN", (err) => {
       if (err) {
         console.error("Error beginning transaction:", err);
@@ -387,7 +369,6 @@ exports.update = (req, res) => {
         return;
       }
 
-      // Update employee
       connection.query(
         updateEmployeeQuery,
         [
@@ -412,7 +393,6 @@ exports.update = (req, res) => {
             });
           }
 
-          // Update contact
           connection.query(
             updateContactQuery,
             [contactNo, req.params.id],
@@ -424,7 +404,6 @@ exports.update = (req, res) => {
                 });
               }
 
-              // Commit transaction
               connection.query("COMMIT", (err) => {
                 if (err) {
                   console.error("Error committing transaction:", err);
@@ -471,7 +450,6 @@ exports.getCitiesByProvince = (req, res) => {
   });
 };
 
-// Function to fetch barangays by city ID
 exports.getBarangaysByCity = (req, res) => {
   const cityId = req.params.cityId;
   const query = `SELECT * FROM tbl_barangays WHERE city_id = $1`;
@@ -485,7 +463,6 @@ exports.getBarangaysByCity = (req, res) => {
   });
 };
 
-// Function to fetch positions by Dept Id
 exports.getPositionsByDepartment = (req, res) => {
   const deptId = req.params.deptId;
   const query = `SELECT * FROM tbl_positions WHERE department_id = $1`;

@@ -1,3 +1,13 @@
+
+  {{#if alert}}
+  <div style="padding-bottom: 10px;">
+<div class="alert alert-success alert-dismissible position-relative fade show z-1" role="alert" style="width: 100%;">
+  {{alert}}
+  <button type="button" class="btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+  </div>
+
+{{/if}}
 <div class="row">
   <div class="col-md-3 grid-margin stretch-card">
     <div class="card card-primary">
@@ -39,7 +49,7 @@
           Total Hours
         </p>
         <p class="fs-30 mb-2 fw-bold">
-          2 hrs
+          ...
         </p>
       </div>
     </div>
@@ -51,7 +61,7 @@
           Total Overtime Hours
         </p>
         <p class="fs-30 mb-2 fw-bold">
-          2 hrs
+          ...
         </p>
       </div>
     </div>
@@ -63,7 +73,7 @@
           Total Night Differential Hours
         </p>
         <p class="fs-30 mb-2 fw-bold">
-          2 hrs
+          ...
         </p>
       </div>
     </div>
@@ -172,6 +182,8 @@
   </div>
 </div>
 
+
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const calendar =
@@ -186,3 +198,4 @@
     document.getElementById('dayTypeForm').submit();
   }
 </script>
+

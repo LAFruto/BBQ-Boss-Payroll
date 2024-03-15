@@ -1,4 +1,3 @@
-// const mysql = require('mysql');
 const { Pool } = require("pg");
 const multer = require('multer');
 const xlsx = require('xlsx');
@@ -22,19 +21,15 @@ exports.view = (req, res) => {
     .toISOString()
     .split("T")[0];
 
-  fetchSelectedDate(selectedDate, res);
+  fetchSelectedDate(selectedDate, res, req);
 };
 
 exports.date = (req, res) => {
   selectedDate = req.body.timekeeping_date;
-  fetchSelectedDate(selectedDate, res);
+  fetchSelectedDate(selectedDate, res, req);
 };
 
-exports.form = (req, res) => {
-  res.render("add-timesheet");
-};
-
-exports.record_form = (req, res) =>  {
+exports.record_form = (req, res) => {
 
   const query = `
   SELECT b.id AS branch_id, a.address AS branch_name
@@ -47,18 +42,19 @@ exports.record_form = (req, res) =>  {
 
     connection.query(query, (err, { rows }) => {
       connection.release();
-      if(!err) {
-        res.render('add-record', { rows } );
+      if (!err) {
+        const alertMessage = req.query.alert;
+
+        res.render('add-record', { rows, alert: alertMessage });
       } else {
         console.log(err)
       }
     })
   })
-
 };
 
 exports.day_type = (req, res) => {
-  let now = new Date(); 
+  let now = new Date();
   if (req.body.timekeeping_date === null || req.body.timekeeping_date === undefined) {
     const currentDate = new Date();
     const selectedDate = new Date(
@@ -68,26 +64,24 @@ exports.day_type = (req, res) => {
   } else {
     now = req.body.timekeeping_date;
   }
-  
-  const selectedDayType = req.body.dayType; // Corrected variable name
-  
-  const dateQuery = `SELECT * FROM tbl_dates WHERE date = $1`;
-  
-  pool.connect((err, connection) => {
-    if (err) throw err; // Handle connection error
 
-    // Execute the query
+  const selectedDayType = req.body.dayType; 
+
+  const dateQuery = `SELECT * FROM tbl_dates WHERE date = $1`;
+
+  pool.connect((err, connection) => {
+    if (err) throw err; 
+
     connection.query(dateQuery, [now], (err, { rows }) => {
       connection.release();
-      if (err) throw err; // Handle query error
+      if (err) throw err; 
       const date = rows[0].date;
 
       const updateQuery = `UPDATE tbl_dates SET day_type_id = $1 WHERE date = $2`;
 
-      // Execute the update query
       connection.query(updateQuery, [selectedDayType, date], (err, result) => {
         if (!err) {
-          fetchSelectedDate(now, res)
+          fetchSelectedDate(now, res, req)
         } else {
           console.error("Error updating day type:", err);
         }
@@ -97,45 +91,59 @@ exports.day_type = (req, res) => {
 };
 
 
-exports.record_create = (req, res) =>  {
+exports.record_create = (req, res) => {
   const { employee_id, record_date, branch_id, record_start_time, record_end_time } = req.body;
   const dateQuery = `SELECT * FROM tbl_dates WHERE date = $1`;
+  const employeeQuery = `SELECT * FROM tbl_employees WHERE id = $1`;
 
   pool.connect((err, connection) => {
     if (err) throw err;
-    
+
     connection.query(dateQuery, [record_date], (err, { rows }) => {
       connection.release();
 
-      if(!err) {
-
-        const date_id = rows[0].id;    
+      if (!err) {
+        const date_id = rows[0].id;
 
         pool.connect((err, connection) => {
-
-          const DTRquery = `INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
-          VALUES ($1, $2, $3, 2, false, false, $4, $5)`;
           if (err) throw err;
-          
-          connection.query(DTRquery, [employee_id, date_id, branch_id, record_start_time, record_end_time], (err, { rows }) => {
+
+          connection.query(employeeQuery, [employee_id], (err, { rows }) => {
             connection.release();
-      
-            if(!err) {
-              res.redirect('/timekeeping');
-            } else {
-              console.log(err);
+
+            if (!err) {
+              if (rows.length === 0) {
+                // Employee not found, render a template page
+                res.redirect('/timekeeping/add-record?alert=Employee%20does%20not%20exist');
+                return;
+              }
+
+              // Employee found, proceed with inserting the record
+              const DTRquery = `INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
+                VALUES ($1, $2, $3, 2, false, false, $4, $5)`;
+
+              pool.connect((err, connection) => {
+                if (err) throw err;
+
+                connection.query(DTRquery, [employee_id, date_id, branch_id, record_start_time, record_end_time], (err, { rows }) => {
+                  connection.release();
+
+                  if (!err) {
+                    res.redirect('/timekeeping?alert=Time%20record%20successfully%20added');
+                  } else {
+                    console.log(err);
+                  }
+                });
+              });
             }
           });
         });
-
-      } else {
-        console.log(err);
       }
     });
   });
 };
 
-exports.record_edit = (req, res) =>  {
+exports.record_edit = (req, res) => {
   const branchQuery = `
     SELECT b.id AS branch_id, a.address AS branch_name
     FROM tbl_branches AS b
@@ -147,9 +155,7 @@ exports.record_edit = (req, res) =>  {
     connection.query(branchQuery, (err, branches) => {
       connection.release();
 
-      console.log(branches);
-      
-      if(!err) {
+      if (!err) {
         pool.connect((err, connection) => {
           if (err) throw err;
           const query = `
@@ -159,18 +165,18 @@ exports.record_edit = (req, res) =>  {
           INNER JOIN tbl_addresses AS a ON b.address_id = a.id
           WHERE dtr.id = $1
         `;
-        
-          connection.query(query, [req.params.id],(err, { rows } ) => {
+
+          connection.query(query, [req.params.id], (err, { rows }) => {
             connection.release();
-            
-            if(!err) {
+
+            if (!err) {
               res.render('edit-record', { rows });
             } else {
               console.log(err)
             }
           })
         })
-        
+
       } else {
         console.log(err)
       }
@@ -178,19 +184,19 @@ exports.record_edit = (req, res) =>  {
   })
 };
 
-exports.record_update  = (req, res) => {
-  
+exports.record_update = (req, res) => {
+
   const { branch_id, start_time, end_time } = req.body;
 
   const query = `UPDATE tbl_daily_time_records SET branch_id = $1, start_time = $2, end_time = $3 WHERE id = $4`;
 
   pool.connect((err, connection) => {
     if (err) throw err;
-    connection.query(query, [branch_id, start_time, end_time, req.params.id ], (err) => {
+    connection.query(query, [branch_id, start_time, end_time, req.params.id], (err) => {
       connection.release();
 
-      if(!err) {
-        
+      if (!err) {
+
         pool.connect((err, connection) => {
           if (err) throw err;
           const query = `
@@ -200,11 +206,11 @@ exports.record_update  = (req, res) => {
           INNER JOIN tbl_addresses AS a ON b.address_id = a.id
           WHERE dtr.id = $1
         `;
-        
-          connection.query(query, [req.params.id], (err, { rows } ) => {
+
+          connection.query(query, [req.params.id], (err, { rows }) => {
             connection.release();
 
-            if(!err) {
+            if (!err) {
               res.render('edit-record', { rows });
             } else {
               console.log(err);
@@ -221,36 +227,36 @@ exports.record_update  = (req, res) => {
 
 exports.delete = (req, res) => {
   pool.connect((err, connection) => {
-    if (err) throw err; 
+    if (err) throw err;
     const query = `
       SELECT d.date
       FROM tbl_daily_time_records dtr 
       JOIN tbl_dates d ON d.id = dtr.date_id
       WHERE dtr.id = $1`;
-      
+
     connection.query(query, [req.params.id], (err, { rows }) => {
       connection.release();
-      if (err) throw err; 
+      if (err) throw err;
 
       const date = rows[0].date;
       const year = date.getFullYear();
-      const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-based
+      const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
       const day = date.getDate().toString().padStart(2, '0');
 
       const selectedDate = `${year}-${month}-${day}`;
 
       pool.connect((err, connection) => {
         if (err) throw err;
-        
+
         const deleteQuery = `
           DELETE FROM tbl_daily_time_records WHERE id = $1`;
-        
-    
+
+
         connection.query(deleteQuery, [req.params.id], (err) => {
           connection.release();
 
           if (!err) {
-            fetchSelectedDate(selectedDate, res);
+            fetchSelectedDate(selectedDate, res, req);
           } else {
             console.log(err);
           }
@@ -262,7 +268,7 @@ exports.delete = (req, res) => {
 
 exports.approve = (req, res) => {
   pool.connect((err, connection) => {
-    if (err) throw err; // not connected
+    if (err) throw err;
     const query = `
       SELECT d.date
       FROM tbl_daily_time_records dtr 
@@ -274,26 +280,26 @@ exports.approve = (req, res) => {
 
       const date = rows[0].date;
       const year = date.getFullYear();
-      const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-based
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
       const day = date.getDate().toString().padStart(2, '0');
 
       const selectedDate = `${year}-${month}-${day}`;
 
       pool.connect((err, connection) => {
         if (err) throw err;
-        const hasOT = req.body.hasOT === 'on'; 
+        const hasOT = req.body.hasOT === 'on';
         const hasBreak = req.body.hasBreak === 'on';
 
         const updateQuery = `
           UPDATE tbl_daily_time_records
           SET status_id = 1, hasot = $2, hasbreak = $3
           WHERE id = $1`;
-    
+
         connection.query(updateQuery, [req.params.id, hasOT, hasBreak], (err) => {
           connection.release();
 
           if (!err) {
-            fetchSelectedDate(selectedDate, res);
+            fetchSelectedDate(selectedDate, res, req);
           } else {
             console.log(err);
           }
@@ -344,7 +350,7 @@ async function checkAndCreatePayrolls() {
   }
 }
 
-function fetchSelectedDate(selectedDate, res) {
+function fetchSelectedDate(selectedDate, res, req) {
   pool.connect((err, connection) => {
     if (err) throw err;
 
@@ -404,7 +410,8 @@ function fetchSelectedDate(selectedDate, res) {
         }
 
         if (!err) {
-          res.render("timekeeping", { rows: rows, selectedDate, dayTypeName });
+          const alertMessage = req.query.alert;
+          res.render("timekeeping", { rows: rows, selectedDate, dayTypeName, alert : alertMessage });
           console.log(rows);
         } else {
           console.log(err);
@@ -414,28 +421,49 @@ function fetchSelectedDate(selectedDate, res) {
   });
 };
 
+exports.form = (req, res) => {
+
+  const query = `
+  SELECT b.id AS branch_id, a.address AS branch_name
+  FROM tbl_branches AS b
+  INNER JOIN tbl_addresses AS a ON b.address_id = a.id
+`;
+
+  pool.connect((err, connection) => {
+    if (err) throw err;
+
+    connection.query(query, (err, { rows }) => {
+      connection.release();
+      if (!err) {
+        res.render('add-timesheet', { rows });
+      } else {
+        console.log(err)
+      }
+    })
+  })
+};
+
 exports.submit = async (req, res) => {
-  const { branch } = req.body;
-
-  let branch_id = null;
-
-  switch (branch) {
-    case "Quirino":
-      branch_id = 10;
-      break;
-    case "Lanang":
-      branch_id = 11;
-      break;
-    case "Matina":
-      branch_id = 12;
-      break;
-    case "Quimpo":
-      branch_id = 13;
-      break;
-  }
+  let branch_id = req.body.branch;
 
   if (!req.file) {
-    res.render('add-timesheet', { alert: 'No file uploaded' });
+    const query = `
+    SELECT b.id AS branch_id, a.address AS branch_name
+    FROM tbl_branches AS b
+    INNER JOIN tbl_addresses AS a ON b.address_id = a.id
+  `;
+      pool.connect((err, connection) => {
+        if (err) throw err;
+    
+        connection.query(query, (err, { rows }) => {
+          connection.release();
+          if (!err) {
+            res.render('add-timesheet', { rows, alert: 'No file uploaded' });
+          } else {
+            console.log(err)
+          }
+        })
+      })
     return;
   }
 
@@ -473,19 +501,15 @@ exports.submit = async (req, res) => {
       const client = await pool.connect();
 
       try {
-        // Get date_id from tbl_dates
         const dateQuery = 'SELECT id FROM tbl_dates WHERE date = $1';
         const dateResult = await client.query(dateQuery, [Date]);
 
         if (dateResult.rows.length === 0) {
-          console.error('Date not found in tbl_dates');
-          // Handle error: Date not found
-          continue; // Skip to next iteration
+          continue;
         }
 
         const date_id = dateResult.rows[0].id;
 
-        // Insert record into tbl_daily_time_records
         const insertQuery = `
           INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasot, hasbreak, start_time, end_time)
           VALUES ($1, $2, $3, 2, false, false, $4, $5)
@@ -497,18 +521,17 @@ exports.submit = async (req, res) => {
         console.log('Record inserted successfully');
         counter++;
       } finally {
-        client.release(); // Release client after each query execution
+        client.release(); 
       }
     } catch (error) {
       console.error('Error inserting record:', error);
-      // Handle insertion error
     }
   }
 
   console.log("Expected Records: " + totalRows);
   console.log("Inserted Records: " + counter);
 
-  res.render('add-timesheet', { alert: 'File uploaded to Database' });
+  res.redirect('/timekeeping?alert=Import%20successful');
 };
 
 function formatTime(timeString) {
@@ -530,12 +553,12 @@ function findClosestTime(times, targetTime) {
   const targetTotalSeconds = toSeconds(targetTime);
   let closestTime, minDifference = Infinity;
   for (const time of times) {
-      const totalSeconds = toSeconds(time);
-      const difference = Math.abs(targetTotalSeconds - totalSeconds);
-      if (difference < minDifference) {
-          minDifference = difference;
-          closestTime = time;
-      }
+    const totalSeconds = toSeconds(time);
+    const difference = Math.abs(targetTotalSeconds - totalSeconds);
+    if (difference < minDifference) {
+      minDifference = difference;
+      closestTime = time;
+    }
   }
   return closestTime;
 }
@@ -545,26 +568,26 @@ function generateDailyTimeRecords(inputData) {
   let currentEmpID = null, currentDate = null, dateList = null;
   const toSeconds = time => time.split(':').reduce((acc, curr, index) => acc + curr * Math.pow(60, 2 - index), 0);
   inputData.forEach(entry => {
-      if (entry.Emp_ID !== currentEmpID || entry.Date !== currentDate) {
-          currentEmpID = entry.Emp_ID;
-          currentDate = entry.Date;
-          let end = null;
+    if (entry.Emp_ID !== currentEmpID || entry.Date !== currentDate) {
+      currentEmpID = entry.Emp_ID;
+      currentDate = entry.Date;
+      let end = null;
 
-          const start = inputData.find(e => e.Emp_ID === entry.Emp_ID && e.Date === entry.Date && toSeconds(e.Time) >= toSeconds('06:00:00'));
-          dateList = inputData.filter(e => e.Emp_ID === entry.Emp_ID).map(entry => entry.Date);
+      const start = inputData.find(e => e.Emp_ID === entry.Emp_ID && e.Date === entry.Date && toSeconds(e.Time) >= toSeconds('06:00:00'));
+      dateList = inputData.filter(e => e.Emp_ID === entry.Emp_ID).map(entry => entry.Date);
 
-          const nextDate = dateList.find(e => e > entry.Date);
-          const nextDateEntries = inputData.filter(e => e.Emp_ID === entry.Emp_ID && e.Date === nextDate && toSeconds(e.Time) <= toSeconds('02:00:00'));
-          
-          if (nextDateEntries.length > 0)
-              end = findClosestTime(nextDateEntries.map(row => row.Time), '01:30:00'); // look for entry close to end of shift
-          else {
-              const currentDateEntries = inputData.filter(e => e.Emp_ID === entry.Emp_ID && e.Date === entry.Date);
-              end = findClosestTime(currentDateEntries.map(row => row.Time), '24:00:00'); // look for entry close to midnight
-          }
-          if (start !== undefined)
-              dtr.push({ First_Name: entry.First_Name, Last_Name: entry.Last_Name, Emp_ID: entry.Emp_ID, Date: entry.Date, Start_Time: start.Time, End_Time: end });
+      const nextDate = dateList.find(e => e > entry.Date);
+      const nextDateEntries = inputData.filter(e => e.Emp_ID === entry.Emp_ID && e.Date === nextDate && toSeconds(e.Time) <= toSeconds('02:00:00'));
+
+      if (nextDateEntries.length > 0)
+        end = findClosestTime(nextDateEntries.map(row => row.Time), '01:30:00'); // look for entry close to end of shift
+      else {
+        const currentDateEntries = inputData.filter(e => e.Emp_ID === entry.Emp_ID && e.Date === entry.Date);
+        end = findClosestTime(currentDateEntries.map(row => row.Time), '24:00:00'); // look for entry close to midnight
       }
+      if (start !== undefined)
+        dtr.push({ First_Name: entry.First_Name, Last_Name: entry.Last_Name, Emp_ID: entry.Emp_ID, Date: entry.Date, Start_Time: start.Time, End_Time: end });
+    }
   });
   return dtr;
 }

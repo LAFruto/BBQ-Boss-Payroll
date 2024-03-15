@@ -8,13 +8,7 @@
             <label class="col-form-label">
               Employee ID
             </label>
-            <input 
-              type="text" 
-              class="form-control form-control-md"
-              id="employee_id"
-              name="employee_id"
-              required
-            />
+            <input type="text" class="form-control form-control-md" id="employee_id" name="employee_id" required />
           </div>
         </div>
         <div class="col-sm-4">
@@ -22,14 +16,8 @@
             <label class="col-form-label">
               Date
             </label>
-            <input
-              class="form-control"
-              id="record_date"
-              name="record_date"
-              type="datetime-local"
-              placeholder="Select Date"
-              reequired
-            />
+            <input class="form-control" id="record_date" name="record_date" type="datetime-local"
+              placeholder="Select Date" reequired />
           </div>
         </div>
         <div class="col-sm-4">
@@ -37,14 +25,9 @@
             <label class="col-form-label">
               Branch
             </label>
-            <select
-              class="form-control form-select"
-              name="branch_id"
-              style="color: black;"
-              required
-            >
+            <select class="form-control form-select" name="branch_id" style="color: black;" required>
               {{#each rows}}
-                <option value="{{branch_id}}">{{branch_name}}</option>
+              <option value="{{branch_id}}">{{branch_name}}</option>
               {{/each}}
             </select>
           </div>
@@ -56,10 +39,7 @@
             <label class="col-form-label">
               Start Time
             </label>
-            <input 
-            class="form-control" 
-            name="record_start_time" 
-            type="time" required />
+            <input class="form-control" name="record_start_time" type="time" required />
           </div>
         </div>
         <div class="col-sm-4">
@@ -67,10 +47,7 @@
             <label class="col-form-label">
               End Time
             </label>
-            <input 
-            class="form-control" 
-            name="record_end_time" 
-            type="time" required />
+            <input class="form-control" name="record_end_time" type="time" required />
           </div>
         </div>
       </div>
@@ -92,8 +69,12 @@
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () { const calendar =
-  flatpickr("#record_date", { defaultDate: "today", enableTime: false, onChange:
-  function (selectedDates, dateStr, instance) { submitForm(); } }); function
-  submitForm() { document.getElementById('dateForm').submit(); } });
+  document.addEventListener('DOMContentLoaded', function () {
+    const calendar =
+      flatpickr("#record_date", {
+        defaultDate: "today", enableTime: false, onChange:
+          function (selectedDates, dateStr, instance) { submitForm(); }
+      }); function
+      submitForm() { document.getElementById('dateForm').submit(); }
+  });
 </script>

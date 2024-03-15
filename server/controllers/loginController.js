@@ -1,7 +1,4 @@
-// const mysql = require('mysql');
 const { Pool } = require('pg');
-
-require('dotenv').config(); // Load environment variables from .env file
 
 const pool = new Pool({
   max: 100,
@@ -57,7 +54,7 @@ exports.authenticate = (req, res) => {
         req.session.username = userData.username;
         req.session.acc_type = userData.acc_type;
         
-        res.redirect("/dashboard");
+        res.redirect("/payroll");
       } else {
 				res.render("login", { alert: 'Incorrect login details', layout: "loginLayout" } )
 				console.log("Login failed");

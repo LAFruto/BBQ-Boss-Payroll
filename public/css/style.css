@@ -275,6 +275,17 @@ button:not(:disabled),
   cursor: pointer;
 }
 
+input[type="date"]::-webkit-calendar-picker-indicator {
+  fill: red;
+  color: red;
+  background: red;
+  background-color: red;
+}
+
+.disabled:hover {
+  color: inherit !important; 
+  background-color: inherit !important;
+}
 button::-moz-focus-inner,
 [type="button"]::-moz-focus-inner,
 [type="reset"]::-moz-focus-inner,
@@ -2395,6 +2406,12 @@ textarea.is-invalid.tt-hint {
   .form-inline .custom-control-label {
     margin-bottom: 0;
   }
+}
+
+.bottom-right-alert {
+  position: fixed;
+  bottom: 20px; /* Adjust this value to set the distance from the bottom */
+  right: 20px; /* Adjust this value to set the distance from the right */
 }
 
 .same-width-button {

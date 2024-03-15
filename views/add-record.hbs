@@ -1,10 +1,14 @@
-{{#if alert}}
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-  {{alert}}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{{/if}}
+
 
 <form class="row g-3 needs-validation" action="/timekeeping/add-record"  method="POST">
 	{{> record-form}}
+
+{{#if alert}}
+<div class="alert alert-primary alert-failed alert-dismissible fade show z-1" role="alert" style="width: 76%;">
+  {{alert}}
+  <button type="button" class="btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{{/if}}
 </form>
+
+
