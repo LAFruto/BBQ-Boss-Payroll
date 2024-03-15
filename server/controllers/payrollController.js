@@ -24,6 +24,143 @@ exports.view = async (req, res) => {
   }
 };
 
+async function fetchSummary(period_id, emp_id) {
+  const periodQuery = `SELECT * FROM tbl_periods WHERE id = $1`;
+
+  const dtrQuery = `
+    SELECT 
+      dtr.emp_id AS emp_id,
+      CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
+      dpt.dept_name, 
+      p.name AS position,
+      p.salary_rate AS rate,
+      d.date,
+      dtr.start_time, 
+      dtr.end_time,
+      dtr.hasot,
+      dtr.hasbreak,
+      d.day_type_id,
+      dtr.branch_id
+    FROM 
+      tbl_daily_time_records dtr
+    JOIN
+      tbl_dates d ON dtr.date_id = d.id
+    JOIN 
+      tbl_employees e ON dtr.emp_id = e.id
+    JOIN 
+      tbl_positions p ON e.position_id = p.id
+    JOIN
+      tbl_departments dpt ON p.department_id = dpt.id
+    WHERE
+      d.date BETWEEN $1 AND $2
+      AND dtr.emp_id = $3
+    ORDER BY
+      dtr.emp_id,
+      d.date;
+  `;
+
+  try {
+    const periodResult = await pool.query(periodQuery, [period_id]);
+    const periodStart = periodResult.rows[0].start_date;
+    const periodEnd = periodResult.rows[0].end_date;
+
+    const dtrResult = await pool.query(dtrQuery, [periodStart, periodEnd, emp_id]);
+    const dtrRows = dtrResult.rows;
+
+    let totalHrs = 0;
+    let totalOvertimeHrs = 0;
+    let totalNightDiffHrs = 0;
+    let grossPay = 0;
+    let netPay = 0;
+    let totalDeductions = 0;
+
+    let baseTotal = 0 // total pay for base hrs (without overtime and nightdiff)
+    let overTimeTotal = 0 // total pay for overtime hrs
+    let nightDiffTotal = 0 // total pay for nightdiff hrs
+
+    const name = dtrRows[0].employee_name
+    const dept = dtrRows[0].dept_name
+    const pos = dtrRows[0].position
+    const rate = dtrRows[0].salary_rate
+
+    // 2024 contribution basis (As of March)
+    // Monthly contributions are divided into 2 since period is bi-monthly
+    const philhealthDeduct = rate * 0.025; // 5% monthly
+    let pagibigDeduct = rate > 1500 ? rate * 0.01 : rate * 0.005; // 2% monthly for 1500 above rates, else 1% monthly
+    let sssDeduct = rate * 0.0225 // 4.5% monthly
+
+    for (const dtr of dtrRows) {
+      const { start_time, end_time, hasot, hasbreak} = dtr;
+
+      // Calculating work hours
+      let hours = (new Date(end_time) - new Date(start_time)) / (1000 * 60 * 60);
+      hours -= hasbreak ? 1 : 0; // Subtract break time if it exists
+
+      // Calculating overtime hours
+      let overtime = hasot ? Math.max(hours - 8, 0) : 0;
+
+      // Calculating night differential hours
+      let nightdiff = 0;
+      const endHour = new Date(end_time).getHours();
+      if (endHour < 22) {
+        nightdiff = endHour >= 2 ? hours : hours + 23;
+      } else {
+        nightdiff = hours;
+      }
+
+      // Adding to totals
+      totalHrs += hours; 
+      totalOvertimeHrs += overtime;
+      totalNightDiffHrs += nightdiff;
+
+      // Calculating base pay
+      baseTotal += rate * (hours - overtime - nightdiff);
+
+      // Calculating overtime pay
+      overTimeTotal += rate * 1.3 * overtime; // 30% higher than base rate
+
+      // Calculating night differential pay
+      nightDiffTotal += rate * 1.1 * nightdiff; // 10% higher than base rate
+    }
+
+    totalDeductions = sssDeduct + pagibigDeduct + philhealthDeduct;
+
+    // Calculating gross pay
+    grossPay = baseTotal + overTimeTotal + nightDiffTotal;
+
+    // Calculating net pay (gross pay - total deductions)
+    netPay = grossPay - totalDeductions;
+
+  
+    console.log('Total Work Hours:', totalHrs.toFixed(2));
+    console.log('Total Overtime Hours:', totalOvertimeHrs.toFixed(2));
+    console.log('Total Night Differential Hours:', totalNightDiffHrs.toFixed(2));
+
+    result = {
+      ID: emp_id,
+      Employee: name,
+      Department: dept,
+      Position: pos,
+      Rate: rate,
+      Hours: totalHrs,
+      OverTime: totalOvertimeHrs,
+      NightDiff: totalNightDiffHrs,
+      Gross: grossPay,
+      Deductions: totalDeductions,
+      Net: netPay,
+      BaseTotal: baseTotal,
+      overTotal: overTimeTotal,
+      nightTotal: nightDiffTotal
+    }
+
+    return result;
+
+  } catch (error) {
+    console.error("Error fetching summary:", error);
+    throw error;
+  }
+}
+
 exports.form = (req, res) => {
   res.render("convert-mbos");
 };
@@ -47,10 +184,21 @@ async function fetchPayrollData(periodId, res) {
           return;
         }
 
+        const payrolls = results.rows;
+
+        // FINAL HURR HURR DLE
+        let finalList = [];
+
+        for (const payroll of payrolls) {
+          const {id, period_id, emp_id} = payroll;
+
+          finalList.push(fetchSummary(period_id, emp_id));
+        }
+
         periodId = parseInt(periodId);
         const currPeriod = period_list.find(period => period.id === periodId);
 
-        res.render("payroll", { periods: period_list, currPeriod: currPeriod });
+        res.render("payroll", {rows: finalList, periods: period_list, currPeriod: currPeriod });
 
       });
     });
