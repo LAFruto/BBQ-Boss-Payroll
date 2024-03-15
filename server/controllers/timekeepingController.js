@@ -387,42 +387,103 @@ function fetchSelectedDate(selectedDate, res) {
 };
 
 exports.submit = (req, res) => {
+
+  // make sure that branch ideally returns an id, else a dropdown of strings will do
+  const {branch} = req.body;
+
+  let branch_id = null;
+
+  switch (branch) {
+    case "Quirino":
+      branch_id = 10;
+      break;
+    case "Lanang":
+      branch_id = 11;
+      break;
+    case "Matina":
+      branch_id = 12;
+      break;
+    case "Quimpo":
+      branch_id = 13;
+      break;
+  }
+
   if (!req.file) {
-      // needs fixing of alert on add-timesheet
-      res.render('add-timesheet', { alert: 'No file uploaded' });
-  } else {
-    
+    res.render('add-timesheet', { alert: 'No file uploaded' });
+    return; // Exit early if no file uploaded
+  }
+
   const workbook = xlsx.readFile(req.file.path);
   const sheetName = workbook.SheetNames[0];
   let jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-
-  // Replace spaces with underscores in headers
   const headers = jsonData[0].map(header => header.replace(/\s/g, '_'));
-
-  // Remove headers from data array
-  jsonData = jsonData.slice(1);
+  jsonData = jsonData.slice(1); // Remove headers from data array
 
   // Convert to JSON object with modified headers
   jsonData = jsonData.map(row => {
-      const newRow = {};
-      headers.forEach((header, index) => {
-          newRow[header] = row[index];
-      });
-      return newRow;
+    const newRow = {};
+    headers.forEach((header, index) => {
+      newRow[header] = row[index];
+    });
+    return newRow;
   });
 
-  // Format Time and Date Values
+  // Format time and date
   jsonData.forEach(row => {
-      row.Time = formatTime(row.Time);
-      row.Date = formatDate(row.Date);
-  })
+    row.Time = formatTime(row.Time);
+    row.Date = formatDate(row.Date);
+  });
 
-  // console.log("Retrieved and Parsed data:\n" + jsonData);
-  console.log("DTR list:")
-  console.log(generateDailyTimeRecords(jsonData));
+  // Generate daily time records
+  const dtrList = generateDailyTimeRecords(jsonData);
 
-  res.render('add-timesheet', { alert: 'File uploaded' } );  
-  }
+  // Iterate over dtrList and insert records
+  dtrList.forEach(dtr => {
+    const {First_Name, Last_Name, Emp_ID, Date, Start_Time, End_Time } = dtr;
+
+    // Get date_id from tbl_dates
+    const dateQuery = 'SELECT id FROM tbl_dates WHERE date = $1';
+
+    // use Date for multidate population, if daily, use dtrDate
+
+    pool.query(dateQuery, [Date], (dateErr, dateResult) => {
+      if (dateErr) {
+        console.error('Error fetching date ID:', dateErr);
+        // Handle error
+        return;
+      }
+
+      if (dateResult.rows.length === 0) {
+        console.error('Date not found in tbl_dates');
+        // Handle error: Date not found
+        return;
+      }
+
+      const date_id = dateResult.rows[0].id;
+
+      // Insert record into tbl_daily_time_records
+      const insertQuery = `
+        INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasot, hasbreak, start_time, end_time)
+        VALUES ($1, $2, $3, 2, false, false, $4, $5)
+      `;
+
+      const values = [Emp_ID, date_id, branch_id, Start_Time, End_Time];
+      console.log(values);
+
+      pool.query(insertQuery, values, (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error('Error inserting record:', insertErr);
+          // Handle insertion error
+          return;
+        }
+
+        console.log('Record inserted successfully');
+        // Handle successful insertion
+      });
+    });
+  });
+
+  res.render('add-timesheet', { alert: 'File uploaded to Database' });
 };
 
 function formatTime(timeString) {
@@ -453,10 +514,6 @@ function findClosestTime(times, targetTime) {
   }
   return closestTime;
 }
-
-// function sortDates(dates) {
-//     return [...new Set(dates)].sort();
-// }
 
 function generateDailyTimeRecords(inputData) {
   const dtr = [];
