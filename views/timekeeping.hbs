@@ -9,7 +9,7 @@
           {{{selectedDate}}}
         </p>
         <p class="fw-bold">
-          REG
+          {{{dayTypeName}}}
         </p>
 
         <div class="row">
@@ -17,15 +17,15 @@
             <input class="btn btn-sm btn-outline-primary" id="calendar" name="timekeeping_date"
               type="datetime-local" placeholder="Select Date" style="width: 90px;" onchange="submitForm()" />
           </form>
-          <form class="form-group mb-0 w-4 col-sm-auto pl-0">
-            <select class="btn btn-sm btn-outline-primary">
-              <option value="" selected disabled hidden>Set Day Type</option>
-              <option value="1">REG</option>
-              <option value="2">RH</option>
-              <option value="3">SH</option>
-              <option value="4">RHSH</option>
-            </select>
-          </form>
+<form id="dayTypeForm" class="form-group mb-0 w-4 col-sm-auto pl-0" action="/timekeeping/daytype" method="POST">
+  <select class="btn btn-sm btn-outline-primary" name="dayType" id="dayTypeSelect" onchange="submitFormDayType()">
+    <option value="" selected disabled hidden>Set Day Type</option>
+    <option value="1">REG</option>
+    <option value="2">SH</option>
+    <option value="3">RH</option>
+    <button class="btn btn-sm btn-outline-primary" type="button">Test</button>
+  </select>
+</form>
         </div>
       </div>
     </div>
@@ -75,23 +75,14 @@
     </form>
   </div>
   <div class="col-sm-2 px-0">
-    <form class="form-group mb-0 w-4 col-sm-auto pl-0">
-      <select class="btn btn-sm btn-dark">
-        <option value="" selected disabled hidden>Department</option>
-        <option value="1">REG</option>
-        <option value="2">RH</option>
-        <option value="3">SH</option>
-        <option value="4">RHSH</option>
-      </select>
-    </form>
+
   </div>
   <div class="col-sm-7 text-end">
     <a href="/timekeeping/add-record" class="btn btn-primary btn-sm" type="button"><i
         class="bi bi-file-earmark-spreadsheet-fill"></i> Add Record</a>
     <a href="/timekeeping/add-timesheet" class="btn btn-primary btn-sm" type="button"><i
         class="bi bi-file-earmark-spreadsheet-fill"></i> Import CSV</a>
-    <a class="btn btn-primary btn-sm" type="button"><i class="bi bi-ui-checks"></i>
-      Approve All</a>
+
   </div>
 </div>
 <div class="row">
@@ -142,7 +133,7 @@
                         </label>
                       </div>
                       <button
-                        class="btn m-0 py-0 {{#equals this.status 1}}btn-inverse-primary disabled{{else}} btn-primary{{/equals}} same-width-button"
+                        class="btn m-0 py-0 {{#equals this.status 1}}btn-secondary{{else}} btn-primary{{/equals}} same-width-button"
                         type="submit">
                         {{#equals this.status 1}}
                         Approved
@@ -158,10 +149,10 @@
                       <button class="btn btn-primary btn-sm p-2" type="button" data-toggle="dropdown"><i
                           class="bi bi-pencil-square"></i></button>
                       <div class="dropdown-menu">
-                        <a class="dropdown-item" href="/timekeeping/edit-record/{{this.dtr_id}}">Alter</a>
+                        <a class="dropdown-item d-flex justify-content-center px-0" href="/timekeeping/edit-record/{{this.dtr_id}}">Alter</a>
                         <div class="dropdown-divider"></div>
-                        <form class="dropdown-item" action="/timekeeping/{{this.dtr_id}}/delete" method="POST" >
-                          <button  class="dropdown-item" type="submit">Delete</button>
+                        <form class="dropdown-item mb-0 pb-0 d-flex px-0" action="/timekeeping/{{this.dtr_id}}/delete" method="POST" >
+                          <button class="dropdown-item d-flex justify-content-center px-0" type="submit">Delete</button>
                         </form>
                       </div>
                     </div>
@@ -179,10 +170,17 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    
+    
     const calendar =
       flatpickr("#calendar", {
-        enableTime: false, onChange: function
+        enableTime: false, 
+        onChange: function
           (selectedDates, dateStr, instance) { submitForm(); }
       }); function submitForm() { document.getElementById('dateForm').submit(); }
   });
+
+  function submitFormDayType() {
+    document.getElementById('dayTypeForm').submit();
+  }
 </script>

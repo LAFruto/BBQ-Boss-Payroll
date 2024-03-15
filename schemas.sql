@@ -96,8 +96,6 @@ CREATE TABLE tbl_positions (
 	name VARCHAR(50),
 	details VARCHAR(255),
 	salary_rate DECIMAL(9, 2)
-
-
 );
 
 CREATE TABLE tbl_trainees (
@@ -296,11 +294,11 @@ ALTER SEQUENCE tbl_activities_id_seq RESTART WITH 800001;
 ALTER SEQUENCE tbl_accounts_id_seq RESTART WITH 901;
 
 -----------------------QUERIES-------------------------
-
-INSERT INTO tbl_day_types(details) VALUES 
-('REG'),
-('RH'),
-('SH');
+-- day type --
+INSERT INTO tbl_day_types(type, details) values
+('REG', 'Regular Working Day'),
+('SH', 'Special Holiday'),
+('RH', 'Regular Holiday');
 
 -- DATES -- 
 -- Delete existing data from tbl_dates (if any)
@@ -378,14 +376,10 @@ INSERT INTO tbl_leave_types(type) values
 -- status --
 INSERT INTO tbl_statuses(status) values
 ('approved'),
-('pending');
+('pending'),
 ('declined');
 
--- day type --
-INSERT INTO tbl_day_types(type, details) values
-('REG', 'Regular Working Day'),
-('SH', 'Special Holiday'),
-('RH', 'Regular Holiday');
+
 
 -- civil status --
 INSERT INTO tbl_civil_statuses(status, details) values
@@ -696,6 +690,8 @@ VALUES
 (10004, 200062, 10, 2, false, false, '07:45', '15:45'),
 (10004, 200063, 10, 2, false, false, '07:15', '15:15');
 
+-- INSERT INTO tbl_dole_(id, name, rate) VALUES
+-- (1, "OT ADDITIONAL PAY", 0.30)
 INSERT INTO tbl_dole_rates(id, name, rate) VALUES
 (1, 'OT ADDITIONAL PAY', 0.30)
 (2, 'ND ADDITIONAL PAY', 0.30)

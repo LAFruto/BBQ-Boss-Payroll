@@ -13,6 +13,7 @@
               class="form-control form-control-md"
               id="employee_id"
               name="employee_id"
+              required
             />
           </div>
         </div>
@@ -27,6 +28,7 @@
               name="record_date"
               type="datetime-local"
               placeholder="Select Date"
+              reequired
             />
           </div>
         </div>
@@ -39,6 +41,7 @@
               class="form-control form-select"
               name="branch_id"
               style="color: black;"
+              required
             >
               {{#each rows}}
                 <option value="{{branch_id}}">{{branch_name}}</option>
@@ -56,7 +59,7 @@
             <input 
             class="form-control" 
             name="record_start_time" 
-            type="time" />
+            type="time" required />
           </div>
         </div>
         <div class="col-sm-4">
@@ -67,7 +70,7 @@
             <input 
             class="form-control" 
             name="record_end_time" 
-            type="time" />
+            type="time" required />
           </div>
         </div>
       </div>

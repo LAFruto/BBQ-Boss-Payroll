@@ -45,12 +45,8 @@ exports.record_form = (req, res) =>  {
   pool.connect((err, connection) => {
     if (err) throw err;
 
-
     connection.query(query, (err, { rows }) => {
       connection.release();
-
-      console.log(rows);
-
       if(!err) {
         res.render('add-record', { rows } );
       } else {
@@ -61,15 +57,49 @@ exports.record_form = (req, res) =>  {
 
 };
 
+exports.day_type = (req, res) => {
+  let now = new Date(); 
+  if (req.body.timekeeping_date === null || req.body.timekeeping_date === undefined) {
+    const currentDate = new Date();
+    const selectedDate = new Date(
+      currentDate.getTime() - currentDate.getTimezoneOffset() * 60000
+    ).toISOString().split("T")[0];
+    now = selectedDate;
+  } else {
+    now = req.body.timekeeping_date;
+  }
+  
+  const selectedDayType = req.body.dayType; // Corrected variable name
+
+  
+  const dateQuery = `SELECT * FROM tbl_dates WHERE date = $1`;
+  
+  pool.connect((err, connection) => {
+    if (err) throw err; // Handle connection error
+
+    // Execute the query
+    connection.query(dateQuery, [now], (err, { rows }) => {
+      connection.release();
+      if (err) throw err; // Handle query error
+      const date = rows[0].date;
+
+      const updateQuery = `UPDATE tbl_dates SET day_type_id = $1 WHERE date = $2`;
+
+      // Execute the update query
+      connection.query(updateQuery, [selectedDayType, date], (err, result) => {
+        if (!err) {
+          fetchSelectedDate(now, res)
+        } else {
+          console.error("Error updating day type:", err);
+        }
+      });
+    });
+  });
+};
+
+
 exports.record_create = (req, res) =>  {
   const { employee_id, record_date, branch_id, record_start_time, record_end_time } = req.body;
-  
-  console.log(employee_id);
-  console.log(record_date.toString());
-  console.log(branch_id);
-  console.log(record_start_time);
-  console.log(record_end_time)
-
   const dateQuery = `SELECT * FROM tbl_dates WHERE date = $1`;
 
   pool.connect((err, connection) => {
@@ -81,7 +111,6 @@ exports.record_create = (req, res) =>  {
       if(!err) {
 
         const date_id = rows[0].id;    
-        console.log(date_id);
 
         pool.connect((err, connection) => {
 
@@ -152,12 +181,7 @@ exports.record_edit = (req, res) =>  {
 
 exports.record_update  = (req, res) => {
   
-  console.log("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
   const { branch_id, start_time, end_time } = req.body;
-  console.log(branch_id);
-  console.log(start_time);
-  console.log(end_time);
-  console.log(req.params.id);
 
   const query = `UPDATE tbl_daily_time_records SET branch_id = $1, start_time = $2, end_time = $3 WHERE id = $4`;
 
@@ -180,7 +204,6 @@ exports.record_update  = (req, res) => {
         
           connection.query(query, [req.params.id], (err, { rows } ) => {
             connection.release();
-            console.log(rows);
 
             if(!err) {
               res.render('edit-record', { rows });
@@ -210,9 +233,6 @@ exports.delete = (req, res) => {
       connection.release();
       if (err) throw err; 
 
-
-      console.log(req.params.id);
-      
       const date = rows[0].date;
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-based
@@ -226,8 +246,6 @@ exports.delete = (req, res) => {
         const deleteQuery = `
           DELETE FROM tbl_daily_time_records WHERE id = $1`;
         
-    
-        console.log("Connected as ID " + connection.processID);
     
         connection.query(deleteQuery, [req.params.id], (err) => {
           connection.release();
@@ -254,8 +272,6 @@ exports.approve = (req, res) => {
 
     connection.query(query, [req.params.id], (err, { rows }) => {
       connection.release();
-      console.log(req.params.id);
-      console.log(rows);
 
       const date = rows[0].date;
       const year = date.getFullYear();
@@ -264,20 +280,15 @@ exports.approve = (req, res) => {
 
       const selectedDate = `${year}-${month}-${day}`;
 
-
       pool.connect((err, connection) => {
         if (err) throw err;
         const hasOT = req.body.hasOT === 'on'; 
         const hasBreak = req.body.hasBreak === 'on';
 
-        console.log(hasOT, hasBreak);
-        
         const updateQuery = `
           UPDATE tbl_daily_time_records
           SET status_id = 1, hasot = $2, hasbreak = $3
           WHERE id = $1`;
-    
-        console.log("Connected as ID " + connection.processID);
     
         connection.query(updateQuery, [req.params.id, hasOT, hasBreak], (err) => {
           connection.release();
@@ -345,39 +356,52 @@ function fetchSelectedDate(selectedDate, res) {
       if (err) throw err;
 
       const dateId = rows[0].id;
+      const dayType = rows[0].day_type_id;
       const dtrQuery = `
-		SELECT 
-		dtr.id AS dtr_id,
-		CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
-		a.address AS branch_name,
-		TO_CHAR(dtr.start_time, 'HH24:MI') AS start_time,
-		TO_CHAR(dtr.end_time, 'HH24:MI') AS close_time,
-    dtr.hasot AS hasot,
-    dtr.hasbreak AS hasbreak,
-    dtr.status_id AS status,
-		CASE 
-			WHEN dtr.hasOT = false THEN 0
-			WHEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) > 8 THEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) - 8
-			ELSE 0
-		END AS overtime_hours,
-		CASE 
-			WHEN dtr.end_time > '22:00' THEN EXTRACT(HOUR FROM dtr.end_time - '22:00')
-			ELSE 0
-		END AS night_differential_hours,
-			EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) AS total_hours
-		FROM 
-			tbl_daily_time_records AS dtr
-		INNER JOIN tbl_employees AS e ON dtr.emp_id = e.id
-		INNER JOIN tbl_branches AS b ON dtr.branch_id = b.id
-		INNER JOIN tbl_addresses AS a ON b.address_id = a.id
-		WHERE 
-			dtr.date_id = $1;
+      SELECT 
+      dtr.id AS dtr_id,
+      CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
+      a.address AS branch_name,
+      TO_CHAR(dtr.start_time, 'HH24:MI') AS start_time,
+      TO_CHAR(dtr.end_time, 'HH24:MI') AS close_time,
+      dtr.hasot AS hasot,
+      dtr.hasbreak AS hasbreak,
+      dtr.status_id AS status,
+      CASE 
+          WHEN dtr.hasOT = false THEN 0
+          WHEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) > 8 THEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) - 8
+          ELSE 0
+            END AS overtime_hours,
+            CASE 
+                WHEN dtr.end_time > '22:00' THEN EXTRACT(HOUR FROM dtr.end_time - '22:00')
+                ELSE 0
+            END AS night_differential_hours,
+            EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) AS total_hours,
+            d.date AS date  -- Include the date column from tbl_dates
+        FROM 
+            tbl_daily_time_records AS dtr
+        INNER JOIN tbl_employees AS e ON dtr.emp_id = e.id
+        INNER JOIN tbl_branches AS b ON dtr.branch_id = b.id
+        INNER JOIN tbl_addresses AS a ON b.address_id = a.id
+        INNER JOIN tbl_dates AS d ON d.id = dtr.date_id  -- Join tbl_dates
+        WHERE 
+            dtr.date_id = $1 AND
+            e.status = 'Active';
         `;
 
       connection.query(dtrQuery, [dateId], (err, { rows }) => {
         connection.release();
+
+        let dayTypeName = 'Regular Day';
+        if (dayType === 2) {
+          dayTypeName = 'Special Holiday';
+        } else if (dayType === 3) {
+          dayTypeName = 'Regular Holiday';
+        }
+
         if (!err) {
-          res.render("timekeeping", { rows: rows, selectedDate });
+          res.render("timekeeping", { rows: rows, selectedDate, dayTypeName});
+        
         } else {
           console.log(err);
         }
@@ -417,7 +441,6 @@ exports.submit = (req, res) => {
       row.Date = formatDate(row.Date);
   })
 
-  // console.log("Retrieved and Parsed data:\n" + jsonData);
   console.log("DTR list:")
   console.log(generateDailyTimeRecords(jsonData));
 
@@ -453,10 +476,6 @@ function findClosestTime(times, targetTime) {
   }
   return closestTime;
 }
-
-// function sortDates(dates) {
-//     return [...new Set(dates)].sort();
-// }
 
 function generateDailyTimeRecords(inputData) {
   const dtr = [];

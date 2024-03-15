@@ -33,12 +33,19 @@ router.get('/dashboard', dashboardController.view)
 
 // EMPLOYEES ROUTES
 router.get('/employee', employeeController.view)
-router.get('/employee/add-employee', employeeController.form)
 router.post('/employee', employeeController.find)
 
-// router.post('/employee/:id', employeeController.profile)
+router.get('/employee/add-employee', employeeController.form)
+router.post('/employee/add-employee', employeeController.create)
 
-// router.post('/employee/addemployee', employeeController.create)
+router.get('/employee/edit-employee/:id', employeeController.edit)
+router.post('/employee/edit-employee/:id', employeeController.update)
+
+router.post('/employee/delete-employee/:id', employeeController.delete)
+
+router.get('/employee/cities/:provinceId', employeeController.getCitiesByProvince);
+router.get('/employee/barangays/:cityId', employeeController.getBarangaysByCity);
+router.get('/employee/positions/:deptId', employeeController.getPositionsByDepartment);
 
 // PAYROLL ROUTES
 router.get('/payroll', payrollController.view)
@@ -47,6 +54,9 @@ router.get('/payroll/convert-mbos', payrollController.form)
 // TIMEKEEPING ROUTES
 router.get('/timekeeping', timekeepingController.view)
 router.post('/timekeeping', timekeepingController.date)
+
+router.post('/timekeeping/daytype', timekeepingController.day_type)
+
 router.post('/timekeeping/:id/delete', timekeepingController.delete)
 router.post('/timekeeping/:id/approve', timekeepingController.approve)
 
@@ -55,17 +65,18 @@ router.get('/timekeeping/add-timesheet', timekeepingController.form)
 router.get('/timekeeping/add-record', timekeepingController.record_form)
 router.post('/timekeeping/add-record', timekeepingController.record_create)
 
+
 router.get('/timekeeping/edit-record/:id', timekeepingController.record_edit)
 router.post('/timekeeping/:id/edit-record/', timekeepingController.record_update)
-
-// Multer middleware to handle file upload
-router.post('/timekeeping/add-timesheet', upload.single('excel'), timekeepingController.submit);
-
 
 // LEAVES ROUTES
 router.get('/leaves', leavesController.view)
 
 // SETTINGS ROUTES
 router.get('/settings', settingsController.view)
+
+// Multer middleware to handle file upload
+router.post('/timekeeping/add-timesheet', upload.single('excel'), timekeepingController.submit);
+
 
 module.exports = router;

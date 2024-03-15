@@ -1,7 +1,7 @@
 <div class="row">
   <div class="card">
     <div class="card-body">
-      <h4 class="card-title">Add Employee</h4>
+      <h4 class="card-title">Employee Form</h4>
       <form class="form-sample">
         <p class="card-description fs-">Personal Info</p>
         <div class="row">
@@ -10,7 +10,8 @@
               <label class="col-form-label">
                 Last Name
               </label>
-              <input type="text" class="form-control form-control-md" />
+              <input type="text" class="form-control form-control-md" name="empLname" value="{{this.emp_lname}}"
+                required />
             </div>
           </div>
           <div class="col-sm-4">
@@ -18,7 +19,8 @@
               <label class="col-form-label">
                 Given Name
               </label>
-              <input type="text" class="form-control form-control-md" />
+              <input type="text" class="form-control form-control-md" name="empFname" value="{{this.emp_fname}}"
+                required />
             </div>
           </div>
           <div class="col-sm-4">
@@ -26,7 +28,7 @@
               <label class="col-form-label">
                 Middle Name
               </label>
-              <input type="text" class="form-control form-control-md" />
+              <input type="text" class="form-control form-control-md" name="empMname" value="{{this.emp_mname}}" />
             </div>
           </div>
         </div>
@@ -36,11 +38,8 @@
               <label class="col-form-label">
                 Email
               </label>
-              <input
-                type="email"
-                class="form-control form-control-md"
-                placeholder="email@domain.com"
-              />
+              <input type="email" class="form-control form-control-md" name="email" value="{{this.email}}" required
+                placeholder="email@domain.com" />
             </div>
           </div>
           <div class="col-sm-4">
@@ -48,11 +47,8 @@
               <label class="col-form-label">
                 Phone Number
               </label>
-              <input
-                type="text"
-                class="form-control form-control-md"
-                placeholder="632XXXXXXXX"
-              />
+              <input type="text" class="form-control form-control-md" name="phoneNumber" value="{{this.contact_no}}"
+                required placeholder="63XXXXXXXXX" pattern="^63[0-9]{10}$" />
             </div>
           </div>
         </div>
@@ -62,196 +58,363 @@
               <label class="col-form-label">
                 Birthdate
               </label>
-              <input
-                type="text"
-                class="form-control form-control-md"
-                placeholder="dd/mm/yyyy"
-              />
+              <input type="text" class="form-control form-control-md" id="birthdateInput" name="birthdate"
+                 placeholder="YYYY-MM-DD" pattern="^\d{4}-\d{2}-\d{2}$"  required />
             </div>
           </div>
+
           <div class="col-sm-4">
             <div class="form-group">
               <label class="col-form-label">
                 Gender
               </label>
-              <select class="form-control form-select">
-                <option>Male</option>
-                <option>Female</option>
+              <select class="form-control form-select" name="genderId">
+                {{#each genders}}
+                <option value="{{id}}" {{#equals gender ../employee.gender}} selected {{/equals}}>
+                  {{gender}}
+                </option>
+                {{/each}}
               </select>
             </div>
-            {{! <div class="col-sm-4">
+          </div>
+          <div class="col-sm-4">
             <div class="form-group">
               <label class="col-form-label">
-                Gender
+                Civil Status
               </label>
-              <div class="row">
-                <div class="col-sm-1"></div>
-                <div class="col-sm-4">
-                  <div class="form-check">
-                    <label class="form-check-label">
-                      <input type="radio" class="form-check-input" name="gender" id="gender1" />
-                      Male
-                      <i class="input-helper"></i>
-                    </label>
-                  </div>
-                </div>
-                <div class="col-sm-5">
-                  <div class="form-check">
-                    <label class="form-check-label">
-                      <input type="radio" class="form-check-input" name="gender" id="gender1" />
-                      Female
-                      <i class="input-helper"></i>
-                    </label>
-                  </div>
-                </div>
+              <select class="form-control form-select" name="civilStatusId">
+                {{#each civil_statuses}}
+                <option value="{{id}}" {{#equals this.status ../employee.status}} selected {{/equals}}>
+                  {{status}}
+                </option>
+                {{/each}}
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label class="col-form-label">
+                  Address
+                </label>
+                <input type="text" class="form-control form-control-md" name="address" required />
               </div>
             </div>
-          </div> }}
           </div>
-        </div>
-
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="form-group">
-              <label class="col-form-label">
-                Address
-              </label>
-              <input type="text" class="form-control form-control-md" />
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">
+                  Province
+                </label>
+                <select class="form-control form-select" id="provinceDropdown" name="provinceId"
+                  onchange="fetchCities()">
+                  <option value="" hidden>Select Province</option>
+                  {{#each provinces}}
+                  <option value="{{id}}">{{name}}</option>
+                  {{/each}}
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">
+                  City
+                </label>
+                <select class="form-control form-select" id="cityDropdown" name="cityId" onchange="fetchBarangays()"
+                  required>
+                  {{#each cities}}
+                  <option value="{{id}}">{{name}}</option>
+                  {{/each}}
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">
+                  Barangay
+                </label>
+                <select class="form-control form-select" id="barangayDropdown" name="barangayId" required>
+                  {{#each barangays}}
+                  <option value="{{id}}">{{name}}</option>
+                  {{/each}}
+                </select>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                Province
-              </label>
-              <select class="form-control form-select">
-                <option>Test</option>
-                <option>Test1</option>
-              </select>
+          <p class="card-description fs-">Government IDs</p>
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">
+                  Social Security System (SSS)
+                </label>
+                <input type="number" class="form-control form-control-md" name="sssNo" value="{{this.sss_no}}"
+                  required />
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">
+                  PhilHealth
+                </label>
+                <input type="" class="form-control form-control-md" name="philhealthNo" value="{{this.philhealth_no}}"
+                  required />
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">
+                  Pag-Ibig
+                </label>
+                <input type="number" class="form-control form-control-md" name="pagibigNo" value="{{this.pagibig_no}}"
+                  required />
+              </div>
             </div>
           </div>
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                City
-              </label>
-              <select class="form-control form-select">
-                <option>Test</option>
-                <option>Test1</option>
-              </select>
+          <p class="card-description fs-">Job Information</p>
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">
+                  Department
+                </label>
+                <select class="form-control form-select" id="departmentsDropdown" name="departmentId"
+                  onchange="fetchPositions()" required>
+                {{#each departments}}
+                <option value="{{id}}" {{#equals this.dept_name ../employee.departments}} selected {{/equals}}>
+                  {{dept_name}}
+                </option>
+                {{/each}}
+                </select>
+              </div>
             </div>
           </div>
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                Barangay
-              </label>
-              <select class="form-control form-select">
-                <option>Test</option>
-                <option>Test1</option>
-              </select>
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">
+                  Position
+                </label>
+                <select class="form-control form-select" id="positionDropdown" name="positionId" required>
+                {{#each positions}}
+                <option value="{{id}}" {{#equals this.name ../employee.positions}} selected {{/equals}}>
+                  {{name}}
+                </option>
+                {{/each}}
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">
+                  Rate Class
+                </label>
+                <input id="rateClassInput" type="text" class="form-control form-control-md" name="rateClass" disabled />
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">
+                  Salary Rate
+                </label>
+                <input id="salaryRateInput" type="text" class="form-control form-control-md" name="salaryRate"
+                  disabled />
+              </div>
             </div>
           </div>
-        </div>
-        <p class="card-description fs-">Government IDs</p>
-        <div class="row">
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                Social Security System (SSS)
-              </label>
-              <input type="text" class="form-control form-control-md" />
+          <div class="row">
+            <div class="col-sm-auto">
+              <button class="btn btn-primary">
+                Submit
+              </button>
+            </div>
+            <div class="col-sm-auto">
+              <button class="btn btn-secondary">
+                Cancel
+              </button>
             </div>
           </div>
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                PhilHealth
-              </label>
-              <input type="text" class="form-control form-control-md" />
-            </div>
-          </div>
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                Pag-Ibig
-              </label>
-              <input type="text" class="form-control form-control-md" />
-            </div>
-          </div>
-        </div>
-        <p class="card-description fs-">Job Information</p>
-        <div class="row">
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                Department
-              </label>
-              <select class="form-control form-select">
-                <option>Test</option>
-                <option>Test1</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                Position
-              </label>
-              <select class="form-control form-select">
-                <option>Test</option>
-                <option>Test1</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                Salary Rate
-              </label>
-              <input type="text" class="form-control form-control-md" />
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                Work Schedule
-              </label>
-              <select class="form-control form-select">
-                <option>Test</option>
-                <option>Test1</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-sm-4">
-            <div class="form-group">
-              <label class="col-form-label">
-                Main Branch
-              </label>
-              <select class="form-control form-select">
-                <option>Test</option>
-                <option>Test1</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-sm-auto">
-            <button class="btn btn-primary">
-              Add Employee
-            </button>
-          </div>
-          <div class="col-sm-auto">
-            <button class="btn btn-secondary">
-              Cancel
-            </button>
-          </div>
-        </div>
       </form>
     </div>
   </div>
 </div>
+
+
+<script>
+  function fetchCities() {
+    const provinceId = document.getElementById('provinceDropdown').value;
+    fetch(`/employee/cities/${provinceId}`)
+      .then(response => response.json())
+      .then(cities => {
+        const cityDropdown = document.getElementById('cityDropdown');
+        cityDropdown.innerHTML = '<option value="" selected hidden disabled>Select City</option>';
+        cities.forEach(city => {
+          const option = document.createElement('option');
+          option.value = city.id;
+          option.textContent = city.name;
+          cityDropdown.appendChild(option);
+        });
+        // Trigger change event on city dropdown to fetch barangays
+        fetchBarangays();
+      })
+      .catch(err => console.error('Error fetching cities:', err));
+  }
+
+  function fetchBarangays() {
+    const cityId = document.getElementById('cityDropdown').value;
+    fetch(`/employee/barangays/${cityId}`)
+      .then(response => response.json())
+      .then(barangays => {
+        const barangayDropdown = document.getElementById('barangayDropdown');
+        barangayDropdown.innerHTML = '<option value="" selected hidden disabled>Select Barangay</option>';
+        barangays.forEach(barangay => {
+          const option = document.createElement('option');
+          option.value = barangay.id;
+          option.textContent = barangay.name;
+          barangayDropdown.appendChild(option);
+        });
+      })
+      .catch(err => console.error('Error fetching barangays:', err));
+  }
+
+  function fetchPositions() {
+    const deptId = document.getElementById('departmentsDropdown').value;
+    fetch(`/employee/positions/${deptId}`)
+      .then(response => response.json())
+      .then(positions => {
+        console.log('Received positions:', positions); // Log received positions
+        const positionDropdown = document.getElementById('positionDropdown');
+        positionDropdown.innerHTML = '<option value="" selected hidden disabled>Select Position</option>';
+        positions.forEach(position => {
+          console.log('Position:', position); // Log each position
+          console.log('Ratelclass:', position.rateclass_id); // Log each position
+          const option = document.createElement('option');
+          option.value = position.id;
+          option.textContent = position.name;
+          option.dataset.salaryRate = position.salary_rate !== undefined ? position.salary_rate : '';
+          option.dataset.rateClass = position.rateclass_id !== undefined ? position.rateclass_id : '';
+          positionDropdown.appendChild(option);
+        });
+        // Trigger change event on position dropdown to update salary rate input
+        positionDropdown.dispatchEvent(new Event('change'));
+      })
+      .catch(err => console.error('Error fetching positions:', err));
+  }
+
+  // Initial call to fetch positions when the page loads
+  fetchPositions();
+  fetchCities();
+
+  // Event listener to update salary rate input when a position is selected
+  document.getElementById('positionDropdown').addEventListener('change', function () {
+    const selectedPosition = this.options[this.selectedIndex];
+
+    const salaryRateInput = document.getElementById('salaryRateInput');
+    if (selectedPosition) {
+      if (selectedPosition.dataset.salaryRate !== undefined) {
+        salaryRateInput.value = selectedPosition.dataset.salaryRate;
+      } else {
+        salaryRateInput.value = ''; // Set it to blank
+      }
+    } else {
+      salaryRateInput.value = '';
+    }
+
+    const rateClassInput = document.getElementById('rateClassInput');
+    if (selectedPosition) {
+      if (selectedPosition.dataset.rateClass !== undefined) {
+        console.log("RATECLASS", selectedPosition.dataset.rateClass);
+        if (selectedPosition.dataset.rateClass == 2) {
+          rateClassInput.value = "Monthly";
+        } else {
+          rateClassInput.value = "Daily";
+        }
+      } else {
+        rateClassInput.value = ''; // Set it to blank
+      }
+    } else {
+      rateClassInput.value = '';
+    }
+  });
+
+  // Function to check if the given input is a valid email address
+  function isValidEmail(email) {
+    // Regular expression for email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  // Function to check if the given input is a valid phone number
+  function isValidPhoneNumber(phoneNumber) {
+    // Regular expression for phone number validation
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phoneNumber);
+  }
+
+  // Function to check if the given input is a valid date in the format dd/mm/yyyy
+  function isValidDate(date) {
+    // Regular expression for date validation
+    const dateRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[012])\/\d{4}$/;
+    return dateRegex.test(date);
+  }
+
+  // Function to check if the given input is not empty
+  function isNotEmpty(input) {
+    return input.trim() !== '';
+  }
+
+  // Event listener for form submission
+  document.querySelector('.form-sample').addEventListener('submit', function (event) {
+    // Get form inputs
+    const lastNameInput = document.querySelector('input[name="lastName"]');
+    const givenNameInput = document.querySelector('input[name="givenName"]');
+    const middleNameInput = document.querySelector('input[name="middleName"]');
+    const emailInput = document.querySelector('input[name="email"]');
+    const phoneNumberInput = document.querySelector('input[name="phoneNumber"]');
+    const birthdateInput = document.querySelector('input[name="birthdate"]');
+    const addressInput = document.querySelector('input[name="address"]');
+    const sssInput = document.querySelector('input[name="sss"]');
+    const philHealthInput = document.querySelector('input[name="philhealth"]');
+    const pagIbigInput = document.querySelector('input[name="pagIbig"]');
+
+    // Validate inputs
+    const isValidLastName = isNotEmpty(lastNameInput.value);
+    const isValidGivenName = isNotEmpty(givenNameInput.value);
+    const isValidMiddleName = isNotEmpty(middleNameInput.value);
+    const isValidEmail = isValidEmail(emailInput.value);
+    const isValidPhoneNumber = isValidPhoneNumber(phoneNumberInput.value);
+    const isValidBirthdate = isValidDate(birthdateInput.value);
+    const isValidAddress = isNotEmpty(addressInput.value);
+    const isValidSSS = isNotEmpty(sssInput.value);
+    const isValidPhilHealth = isNotEmpty(philHealthInput.value);
+    const isValidPagIbig = isNotEmpty(pagIbigInput.value);
+
+    // Check if all inputs are valid
+    if (!isValidLastName || !isValidGivenName || !isValidMiddleName || !isValidEmail || !isValidPhoneNumber || !isValidBirthdate || !isValidAddress || !isValidSSS || !isValidPhilHealth || !isValidPagIbig) {
+      // Prevent form submission if any input is invalid
+      event.preventDefault();
+      // Display error message or highlight invalid inputs
+      // Example: Add a red border to invalid inputs
+      if (!isValidLastName) {
+        lastNameInput.classList.add('is-invalid');
+      } else {
+        lastNameInput.classList.remove('is-invalid');
+      }
+      // Repeat the above process for other inputs
+      // Add similar validation checks and UI feedback for other inputs
+    }
+  });
+
+  $(document).ready(function () {
+    // Get the current value of birthdate
+    var birthdateValue = $('#birthdateInput').val();
+
+    // Assuming birthdateValue is in the format YYYY-MM-DD and you want to change it to DD-MM-YYYY
+    var formattedDate = birthdateValue.split('-').reverse().join('-');
+
+    // Set the formatted date as the value of the input field
+    $('#birthdateInput').val(formattedDate);
+  });
+
+</script>
