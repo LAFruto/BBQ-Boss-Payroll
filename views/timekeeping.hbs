@@ -14,18 +14,20 @@
 
         <div class="row">
           <form class="form-group mb-0 w-4 col-sm-auto" id="dateForm" method="POST" action="/timekeeping" novalidate>
-            <input class="btn btn-sm btn-outline-primary" id="calendar" name="timekeeping_date"
-              type="datetime-local" placeholder="Select Date" style="width: 90px;" onchange="submitForm()" />
+            <input class="btn btn-sm btn-outline-primary" id="calendar" name="timekeeping_date" type="datetime-local"
+              placeholder="Select Date" style="width: 90px;" onchange="submitForm()" />
           </form>
-<form id="dayTypeForm" class="form-group mb-0 w-4 col-sm-auto pl-0" action="/timekeeping/daytype" method="POST">
-  <select class="btn btn-sm btn-outline-primary" name="dayType" id="dayTypeSelect" onchange="submitFormDayType()">
-    <option value="" selected disabled hidden>Set Day Type</option>
-    <option value="1">REG</option>
-    <option value="2">SH</option>
-    <option value="3">RH</option>
-    <button class="btn btn-sm btn-outline-primary" type="button">Test</button>
-  </select>
-</form>
+          <form id="dayTypeForm" class="form-group mb-0 w-4 col-sm-auto pl-0" action="/timekeeping/daytype"
+            method="POST">
+            <select class="btn btn-sm btn-outline-primary" name="dayType" id="dayTypeSelect"
+              onchange="submitFormDayType()">
+              <option value="" selected disabled hidden>Set Day Type</option>
+              <option value="1">REG</option>
+              <option value="2">SH</option>
+              <option value="3">RH</option>
+              <button class="btn btn-sm btn-outline-primary" type="button">Test</button>
+            </select>
+          </form>
         </div>
       </div>
     </div>
@@ -149,9 +151,11 @@
                       <button class="btn btn-primary btn-sm p-2" type="button" data-toggle="dropdown"><i
                           class="bi bi-pencil-square"></i></button>
                       <div class="dropdown-menu">
-                        <a class="dropdown-item d-flex justify-content-center px-0" href="/timekeeping/edit-record/{{this.dtr_id}}">Alter</a>
+                        <a class="dropdown-item d-flex justify-content-center px-0"
+                          href="/timekeeping/edit-record/{{this.dtr_id}}">Alter</a>
                         <div class="dropdown-divider"></div>
-                        <form class="dropdown-item mb-0 pb-0 d-flex px-0" action="/timekeeping/{{this.dtr_id}}/delete" method="POST" >
+                        <form class="dropdown-item mb-0 pb-0 d-flex px-0" action="/timekeeping/{{this.dtr_id}}/delete"
+                          method="POST">
                           <button class="dropdown-item d-flex justify-content-center px-0" type="submit">Delete</button>
                         </form>
                       </div>
@@ -170,11 +174,9 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    
-    
     const calendar =
       flatpickr("#calendar", {
-        enableTime: false, 
+        enableTime: false,
         onChange: function
           (selectedDates, dateStr, instance) { submitForm(); }
       }); function submitForm() { document.getElementById('dateForm').submit(); }

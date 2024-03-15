@@ -70,7 +70,6 @@ exports.day_type = (req, res) => {
   }
   
   const selectedDayType = req.body.dayType; // Corrected variable name
-
   
   const dateQuery = `SELECT * FROM tbl_dates WHERE date = $1`;
   
@@ -392,7 +391,7 @@ function fetchSelectedDate(selectedDate, res) {
       INNER JOIN tbl_branches AS b ON dtr.branch_id = b.id
       INNER JOIN tbl_addresses AS a ON b.address_id = a.id
       WHERE 
-        dtr.date_id = $1`;
+        dtr.date_id = $1 AND e.status = 'Active'`;
 
       connection.query(dtrQuery, [dateId], (err, { rows }) => {
         connection.release();
@@ -405,7 +404,7 @@ function fetchSelectedDate(selectedDate, res) {
         }
 
         if (!err) {
-          res.render("timekeeping", { rows: rows, selectedDate });
+          res.render("timekeeping", { rows: rows, selectedDate, dayTypeName });
           console.log(rows);
         } else {
           console.log(err);

@@ -10,21 +10,17 @@
             2024
           </p>
           <p class="fs-20 mb-4 mt-auto">
-            Mar 01 - Mar 15
+            {{currPeriod.start_date}} - {{currPeriod.end_date}}
           </p>
           <div class="row">
-              <form class="form-group mb-0 w-4 col-sm-auto">
-                <select class="btn btn-sm btn-outline-primary">
-                  <option value="" selected disabled hidden>Select Period</option>
-                  <option value="1">REG</option>
-                  <option value="2">RH</option>
-                  <option value="3">SH</option>
-                  <option value="4">RHSH</option>
-                </select>
-              </form>
-              <div class="col-sm-auto px-0">
-                <a class="btn btn-sm btn-outline-primary" type="submit">Edit Period</a>
-              </div>
+            <form id="periodForm" class="form-group mb-0 w-4 col-sm-auto" action="/payroll" method="GET">
+              <select class="btn btn-sm btn-outline-primary" name="selected_period"  onchange="submitPeriod()">
+                <option value="" selected disabled hidden>Select Period</option>
+                {{#each periods}}
+                <option value="{{id}}">{{start_date}} - {{ end_date }}</option>
+                {{/each}}
+              </select>
+            </form>
           </div>
         </div>
       </div>
@@ -112,26 +108,14 @@
 <div class="row">
   <div class="col-sm-3">
     <form class="">
-    <input
-      type="text"
-      class="form-control form-control-sm"
-      placeholder='🔎︎ Search for Employee'
-    />
+      <input type="text" class="form-control form-control-sm" placeholder='🔎︎ Search for Employee' />
     </form>
   </div>
   <div class="col-sm-2 px-0">
-    <form class="form-group mb-0 w-4 col-sm-auto pl-0">
-      <select class="btn btn-sm btn-dark">
-        <option value="" selected disabled hidden>Department</option>
-        <option value="1">REG</option>
-        <option value="2">RH</option>
-        <option value="3">SH</option>
-        <option value="4">RHSH</option>
-      </select>
-    </form>
   </div>
   <div class="col-sm-7 text-end">
-    <a href="/payroll/convert-mbos" class="btn btn-primary btn-sm" type="button"><i class="bi bi-file-earmark-ruled-fill"></i>
+    <a href="/payroll/convert-mbos" class="btn btn-primary btn-sm" type="button"><i
+        class="bi bi-file-earmark-ruled-fill"></i>
       Convert MBOS</a>
   </div>
 </div>
@@ -156,22 +140,20 @@
               <th scope="col">Actions</th>
             <tbody>
               {{#each rows}}
-                {{!-- <tr>
-                  <td scope="row">{{this.emp_id}}</td>
-                  <td>{{this.name}}</td>
-                  <td>{{this.department}}</td>
-                  <td>{{this.position}}</td>
-                  <td>{{this.address}}</td>
-                  <td>{{this.contact}}</td>
-                  <td>{{this.email}}</td>
-                  <td>{{this.date_hired}}</td>
-                  <td>
-                    <a type="button" class="btn btn-sm btn-primary"><i
-                        class="bi bi-eye"
-                      ></i>
-                      View Profile</a>
-                  </td>
-                </tr> --}}
+              {{!-- <tr>
+                <td scope="row">{{this.emp_id}}</td>
+                <td>{{this.name}}</td>
+                <td>{{this.department}}</td>
+                <td>{{this.position}}</td>
+                <td>{{this.address}}</td>
+                <td>{{this.contact}}</td>
+                <td>{{this.email}}</td>
+                <td>{{this.date_hired}}</td>
+                <td>
+                  <a type="button" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i>
+                    View Profile</a>
+                </td>
+              </tr> --}}
               {{/each}}
             </tbody>
           </table>
@@ -180,3 +162,9 @@
     </div>
   </div>
 </div>
+
+<script>
+  function submitPeriod() {
+  document.getElementById("periodForm").submit();
+}
+</script>
