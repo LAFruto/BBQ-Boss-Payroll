@@ -248,7 +248,7 @@ CREATE TABLE tbl_daily_time_records (
 	FOREIGN KEY(status_id) REFERENCES tbl_statuses(id),
 	hasOT Boolean,
 	hasBreak Boolean,
-	
+
 	start_time Time,
 	end_time Time
 );
@@ -334,6 +334,12 @@ INSERT INTO tbl_accounts(acc_type, username, password) values
 
 -- period --
 INSERT INTO tbl_periods(start_date, end_date, payout_date) values 
+('2024-01-01', '2024-01-15', '2024-01-20'),
+('2024-01-16', '2024-01-31', '2024-02-05'),
+
+('2024-02-01', '2024-02-15', '2024-02-20'),
+('2024-02-16', '2024-02-29', '2024-03-05'),
+
 ('2024-03-01', '2024-03-15', '2024-03-20'),
 ('2024-03-16', '2024-03-31', '2024-04-05'),
 
@@ -627,30 +633,45 @@ INSERT INTO tbl_positions (id, department_id, rateclass_id, name, details, salar
 
 -- Employees
 INSERT INTO tbl_employees (id, position_id, gender_id, civil_id, emp_fname, emp_lname, emp_mname, birthdate, email, sss_no, philhealth_no, pagibig_no, date_hired, status, emp_type) VALUES
-(10001, 1001, 1, 2, 'Juan', 'Dela Cruz', 'Santos', '1990-05-15', 'juan@example.com', '123456789', '123-456789-00', '123456789000', '2023-01-15', 'Active', 1),
-(10002, 1004, 2, 1, 'Maria', 'Santos', 'Reyes', '1995-08-20', 'maria@example.com', '987654321', '987-654321-00', '987654321000', '2023-02-20', 'Active', 1),
-(10003, 1004, 2, 1, 'Pedro', 'Garcia', 'Ramos', '1992-11-10', 'pedro@example.com', '456123789', '456-123789-00', '456123789000', '2023-03-10', 'Active', 1),
-(10004, 1005, 1, 3, 'Ana', 'Reyes', 'Lopez', '1988-03-25', 'ana@example.com', '654987321', '654-987321-00', '654987321000', '2023-04-05', 'Active', 1);
+(10001, 1001, 2, 2, 'Diayanalie', 'Abecino', 'Santos', '1990-05-15', 'dsa@example.com', '123456789', '123-456789-00', '123456789000', '2023-01-15', 'Active', 1),
+(10002, 1004, 2, 1, 'Chaylie', 'Andoc', 'Reyes', '1995-08-20', 'dra@example.com', '987654321', '987-654321-00', '987654321000', '2023-02-20', 'Active', 1),
+(10003, 1004, 1, 1, 'Hedmi', 'Aquino', 'Ramos', '1992-11-10', 'hra@example.com', '456123789', '456-123789-00', '456123789000', '2023-03-10', 'Active', 1),
+(10004, 1002, 1, 3, 'Remy', 'Bugtong', 'Lopez', '1988-03-25', 'rlb@example.com', '654987321', '654-987321-00', '654987321000', '2023-04-05', 'Active', 1),
+
+(10005, 1001, 2, 2, 'Jeshriel', 'Cadungog', 'Lim', '1992-06-21', 'jlc@example.com', '246810999', '231-524624-00', '123456549000', '2023-02-17', 'Active', 1),
+(10006, 1004, 2, 1, 'Bryan', 'Calunsag', 'Cruz', '1995-10-30', 'bcc@example.com', '132524267', '675-758675-00', '654654321000', '2023-06-22', 'Active', 1),
+(10007, 1004, 1, 1, 'Jimboy', 'Catihan', 'Tolentino', '1994-11-17', 'jtc@example.com', '968735462', '454-675893-00', '654123789000', '2023-04-19', 'Active', 1),
+(10008, 1003, 1, 3, 'Nolie', 'Chucas', 'Uy', '1988-11-17', 'nuc@example.com', '245624765', '656-775657-00', '687687321000', '2023-07-06', 'Active', 1),
+
+(10009, 1001, 2, 2, 'Jeannelyn', 'Cortel', 'Magsaysay', '1999-01-16', 'jmc@example.com', '224268967', '776-536356-00', '444456789000', '2023-07-06', 'Active', 1),
+(10010, 1003, 2, 1, 'Jessica', 'Coyoca', 'Hao', '1999-02-01', 'jhc@example.com', '857632543', '987-886742-00', '565654321000', '2023-07-06', 'Active', 1);
 
 -- Contacts
 INSERT INTO tbl_contacts (contact_no) VALUES
 ('09123456789'),
 ('09234567890'),
-('09345678901'),
-('09456789012');
+('09345478501'),
+('09452289012'),
+('09123151789'),
+('09234777890'),
+('09345678991'),
+('09256789912'),
+('09263456789'),
+('09375678912');
 
 -- Linking Employees with Contacts
 INSERT INTO tbl_emp_to_contacts (emp_id, contact_id) VALUES
 (10001, 1),
 (10002, 2),
 (10003, 3),
-(10004, 4);
+(10004, 4),
+(10005, 5),
+(10006, 6),
+(10007, 7),
+(10008, 8),
+(10009, 9),
+(10010, 10);
 
-INSERT INTO tbl_addresses(address) VALUES
-('Quirino'),
-('Lanang'),
-('Matina'),
-('Quimpo');
 INSERT INTO tbl_addresses(address) VALUES
 ('Quirino'),
 ('Lanang'),
@@ -666,42 +687,40 @@ VALUES
 
 -- DTR ENTRIES -- 
 
-INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
-VALUES
-(10001, 200061, 10, 2, false, false, '10:10', '18:00'),
-(10001, 200062, 10, 2, false, false, '09:30', '17:30'),
-(10001, 200063, 10, 2, false, false, '10:15', '18:15');
+-- INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
+-- VALUES
+-- (10001, 200061, 10, 2, false, false, '10:10', '18:00'),
+-- (10001, 200062, 10, 2, false, false, '09:30', '17:30'),
+-- (10001, 200063, 10, 2, false, false, '10:15', '18:15');
 
-INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
-VALUES
-(10002, 200061, 10, 2, false, false, '09:00', '17:00'),
-(10002, 200062, 10, 2, false, false, '09:45', '17:45'),
-(10002, 200063, 10, 2, false, false, '08:30', '16:30');
+-- INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
+-- VALUES
+-- (10002, 200061, 10, 2, false, false, '09:00', '17:00'),
+-- (10002, 200062, 10, 2, false, false, '09:45', '17:45'),
+-- (10002, 200063, 10, 2, false, false, '08:30', '16:30');
 
-INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
-VALUES
-(10003, 200061, 10, 2, false, false, '08:00', '16:00'),
-(10003, 200062, 10, 2, false, false, '08:45', '16:45'),
-(10003, 200063, 10, 2, false, false, '09:15', '17:15');
+-- INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
+-- VALUES
+-- (10003, 200061, 10, 2, false, false, '08:00', '16:00'),
+-- (10003, 200062, 10, 2, false, false, '08:45', '16:45'),
+-- (10003, 200063, 10, 2, false, false, '09:15', '17:15');
 
-INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
-VALUES
-(10004, 200061, 10, 2, false, false, '07:30', '15:30'),
-(10004, 200062, 10, 2, false, false, '07:45', '15:45'),
-(10004, 200063, 10, 2, false, false, '07:15', '15:15');
+-- INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasOT, hasBreak, start_time, end_time)
+-- VALUES
+-- (10004, 200061, 10, 2, false, false, '07:30', '15:30'),
+-- (10004, 200062, 10, 2, false, false, '07:45', '15:45'),
+-- (10004, 200063, 10, 2, false, false, '07:15', '15:15');
 
--- INSERT INTO tbl_dole_(id, name, rate) VALUES
--- (1, "OT ADDITIONAL PAY", 0.30)
-INSERT INTO tbl_dole_rates(id, name, rate) VALUES
-(1, 'OT ADDITIONAL PAY', 0.30)
-(2, 'ND ADDITIONAL PAY', 0.30)
-(3, 'RH ADDITIONAL PAY', 1.00)
-(4, 'RHOT ADDITIONAL PAY', 0.30)
-(5, 'RH ADDITIONAL PAY', 0.30)
-(6, 'RHOT ADDITIONAL PAY', 0.30)
+-- INSERT INTO tbl_dole_rates(id, name, rate) VALUES
+-- (1, 'OT ADDITIONAL PAY', 0.30)
+-- (2, 'ND ADDITIONAL PAY', 0.30)
+-- (3, 'RH ADDITIONAL PAY', 1.00)
+-- (4, 'RHOT ADDITIONAL PAY', 0.30)
+-- (5, 'RH ADDITIONAL PAY', 0.30)
+-- (6, 'RHOT ADDITIONAL PAY', 0.30)
 
-INSERT INTO tbl_dole_times(id, name, time) VALUES
-(1, 'START ND', '22:00')
+-- INSERT INTO tbl_dole_times(id, name, time) VALUES
+-- (1, 'START ND', '22:00')
 
 -- INSERT INTO tbl_dole_(id, name, rate) VALUES
 -- (1, "OT ADDITIONAL PAY", 0.30)

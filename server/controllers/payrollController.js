@@ -1,4 +1,3 @@
-// const mysql = require('mysql');
 const { Pool } = require('pg');
 
 require('dotenv').config(); // Load environment variables from .env file
@@ -18,4 +17,5 @@ exports.view = (req, res) => {
 
 exports.form = (req, res) => {
     res.render('convert-mbos');
-  };
+    
+};

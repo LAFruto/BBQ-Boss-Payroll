@@ -350,7 +350,7 @@ function fetchSelectedDate(selectedDate, res) {
     if (err) throw err;
 
     const dateQuery = `
-    SELECT * FROM tbl_dates WHERE date = $1`;
+      SELECT * FROM tbl_dates WHERE date = $1`;
 
     connection.query(dateQuery, [selectedDate], (err, { rows }) => {
       if (err) throw err;
@@ -359,35 +359,40 @@ function fetchSelectedDate(selectedDate, res) {
       const dayType = rows[0].day_type_id;
       const dtrQuery = `
       SELECT 
-      dtr.id AS dtr_id,
-      CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
-      a.address AS branch_name,
-      TO_CHAR(dtr.start_time, 'HH24:MI') AS start_time,
-      TO_CHAR(dtr.end_time, 'HH24:MI') AS close_time,
-      dtr.hasot AS hasot,
-      dtr.hasbreak AS hasbreak,
-      dtr.status_id AS status,
-      CASE 
+        dtr.id AS dtr_id,
+        CONCAT(e.emp_fname, ' ', e.emp_lname) AS employee_name,
+        a.address AS branch_name,
+        TO_CHAR(dtr.start_time, 'HH24:MI') AS start_time,
+        TO_CHAR(dtr.end_time, 'HH24:MI') AS close_time,
+        dtr.hasot AS hasot,
+        dtr.hasbreak AS hasbreak,
+        dtr.status_id AS status,
+        CASE 
           WHEN dtr.hasOT = false THEN 0
-          WHEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) > 8 THEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) - 8
+          WHEN EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) > 8 THEN ROUND((EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) - 8) + (EXTRACT(MINUTE FROM dtr.end_time - dtr.start_time) / 60), 2)
           ELSE 0
-            END AS overtime_hours,
-            CASE 
-                WHEN dtr.end_time > '22:00' THEN EXTRACT(HOUR FROM dtr.end_time - '22:00')
-                ELSE 0
-            END AS night_differential_hours,
-            EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) AS total_hours,
-            d.date AS date  -- Include the date column from tbl_dates
-        FROM 
-            tbl_daily_time_records AS dtr
-        INNER JOIN tbl_employees AS e ON dtr.emp_id = e.id
-        INNER JOIN tbl_branches AS b ON dtr.branch_id = b.id
-        INNER JOIN tbl_addresses AS a ON b.address_id = a.id
-        INNER JOIN tbl_dates AS d ON d.id = dtr.date_id  -- Join tbl_dates
-        WHERE 
-            dtr.date_id = $1 AND
-            e.status = 'Active';
-        `;
+        END AS overtime_hours,
+        CASE 
+          WHEN EXTRACT(HOUR FROM dtr.end_time) < 22 AND EXTRACT(HOUR FROM dtr.end_time) < 2 THEN 
+            ROUND(((EXTRACT(HOUR FROM dtr.end_time - '22:00:00') + EXTRACT(MINUTE FROM dtr.end_time - '22:00:00') / 60) + 23), 2)
+          WHEN EXTRACT(HOUR FROM dtr.end_time) > 22 THEN 
+            ROUND(((EXTRACT(HOUR FROM dtr.end_time - '22:00:00') + EXTRACT(MINUTE FROM dtr.end_time - '22:00:00') / 60)), 2)
+          ELSE 
+            0
+        END AS night_differential_hours,
+        CASE 
+          WHEN EXTRACT(HOUR FROM dtr.end_time) < EXTRACT(HOUR FROM dtr.start_time) THEN 
+            ROUND(((EXTRACT(HOUR FROM '24:00:00' - dtr.start_time) + EXTRACT(MINUTE FROM '24:00:00' - dtr.start_time) / 60) + (EXTRACT(HOUR FROM dtr.end_time) + EXTRACT(MINUTE FROM dtr.end_time) / 60)), 2)
+          ELSE
+            ROUND(((EXTRACT(HOUR FROM dtr.end_time - dtr.start_time) + EXTRACT(MINUTE FROM dtr.end_time - dtr.start_time) / 60)), 2)
+        END AS total_hours
+      FROM 
+        tbl_daily_time_records AS dtr
+      INNER JOIN tbl_employees AS e ON dtr.emp_id = e.id
+      INNER JOIN tbl_branches AS b ON dtr.branch_id = b.id
+      INNER JOIN tbl_addresses AS a ON b.address_id = a.id
+      WHERE 
+        dtr.date_id = $1`;
 
       connection.query(dtrQuery, [dateId], (err, { rows }) => {
         connection.release();
@@ -400,8 +405,8 @@ function fetchSelectedDate(selectedDate, res) {
         }
 
         if (!err) {
-          res.render("timekeeping", { rows: rows, selectedDate, dayTypeName});
-        
+          res.render("timekeeping", { rows: rows, selectedDate });
+          console.log(rows);
         } else {
           console.log(err);
         }
@@ -410,42 +415,101 @@ function fetchSelectedDate(selectedDate, res) {
   });
 };
 
-exports.submit = (req, res) => {
+exports.submit = async (req, res) => {
+  const { branch } = req.body;
+
+  let branch_id = null;
+
+  switch (branch) {
+    case "Quirino":
+      branch_id = 10;
+      break;
+    case "Lanang":
+      branch_id = 11;
+      break;
+    case "Matina":
+      branch_id = 12;
+      break;
+    case "Quimpo":
+      branch_id = 13;
+      break;
+  }
+
   if (!req.file) {
-      // needs fixing of alert on add-timesheet
-      res.render('add-timesheet', { alert: 'No file uploaded' });
-  } else {
-    
+    res.render('add-timesheet', { alert: 'No file uploaded' });
+    return;
+  }
+
   const workbook = xlsx.readFile(req.file.path);
   const sheetName = workbook.SheetNames[0];
   let jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-
-  // Replace spaces with underscores in headers
   const headers = jsonData[0].map(header => header.replace(/\s/g, '_'));
-
-  // Remove headers from data array
   jsonData = jsonData.slice(1);
 
   // Convert to JSON object with modified headers
   jsonData = jsonData.map(row => {
-      const newRow = {};
-      headers.forEach((header, index) => {
-          newRow[header] = row[index];
-      });
-      return newRow;
+    const newRow = {};
+    headers.forEach((header, index) => {
+      newRow[header] = row[index];
+    });
+    return newRow;
   });
 
-  // Format Time and Date Values
+  // Format time and date
   jsonData.forEach(row => {
-      row.Time = formatTime(row.Time);
-      row.Date = formatDate(row.Date);
-  })
+    row.Time = formatTime(row.Time);
+    row.Date = formatDate(row.Date);
+  });
 
-  console.log("DTR list:")
-  console.log(generateDailyTimeRecords(jsonData));
+  // Generate daily time records
+  const dtrList = generateDailyTimeRecords(jsonData);
 
-  res.render('add-timesheet', { alert: 'File uploaded' } );  
+  let totalRows = dtrList.length;
+  let counter = 0;
+
+  for (const dtr of dtrList) {
+    const { First_Name, Last_Name, Emp_ID, Date, Start_Time, End_Time } = dtr;
+
+    try {
+      const client = await pool.connect();
+
+      try {
+        // Get date_id from tbl_dates
+        const dateQuery = 'SELECT id FROM tbl_dates WHERE date = $1';
+        const dateResult = await client.query(dateQuery, [Date]);
+
+        if (dateResult.rows.length === 0) {
+          console.error('Date not found in tbl_dates');
+          // Handle error: Date not found
+          continue; // Skip to next iteration
+        }
+
+        const date_id = dateResult.rows[0].id;
+
+        // Insert record into tbl_daily_time_records
+        const insertQuery = `
+          INSERT INTO tbl_daily_time_records (emp_id, date_id, branch_id, status_id, hasot, hasbreak, start_time, end_time)
+          VALUES ($1, $2, $3, 2, false, false, $4, $5)
+        `;
+
+        const values = [Emp_ID, date_id, branch_id, Start_Time, End_Time];
+        await client.query(insertQuery, values);
+
+        console.log('Record inserted successfully');
+        counter++;
+      } finally {
+        client.release(); // Release client after each query execution
+      }
+    } catch (error) {
+      console.error('Error inserting record:', error);
+      // Handle insertion error
+    }
   }
+
+  console.log("Expected Records: " + totalRows);
+  console.log("Inserted Records: " + counter);
+
+  res.render('add-timesheet', { alert: 'File uploaded to Database' });
 };
 
 function formatTime(timeString) {
