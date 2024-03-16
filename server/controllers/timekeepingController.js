@@ -81,6 +81,7 @@ exports.day_type = (req, res) => {
 
       connection.query(updateQuery, [selectedDayType, date], (err, result) => {
         if (!err) {
+          
           fetchSelectedDate(now, res, req)
         } else {
           console.error("Error updating day type:", err);
@@ -211,7 +212,7 @@ exports.record_update = (req, res) => {
             connection.release();
 
             if (!err) {
-              res.render('edit-record', { rows });
+              res.redirect('/timekeeping');
             } else {
               console.log(err);
             }

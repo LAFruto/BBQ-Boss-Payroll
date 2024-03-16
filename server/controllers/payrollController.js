@@ -62,6 +62,7 @@ async function fetchSummary(targetPeriod, targetEmp) {
 
 
   try {
+    console.log("PERIOD: " + targetPeriod);
     let periodResult = await pool.query(periodQuery, [targetPeriod]);
 
     let periodStart = periodResult.rows[0].start_date;
@@ -77,8 +78,13 @@ async function fetchSummary(targetPeriod, targetEmp) {
     let endDay = periodEnd.getDate().toString().padStart(2, '0');
     let endDateString = `${endYear}-${endMonth}-${endDay}`;
 
+    console.log("DATE START: " +startDateString);
+    console.log("DATE END: " +endDateString);
+    console.log("EMP ID: " + targetEmp);
     let dtrResult = await pool.query(dtrQuery, [startDateString, endDateString, targetEmp]);
     let dtrRows = dtrResult.rows;
+
+    console.log("LENGTH: " + dtrRows.length);
 
     let totalHrs = 0;
     let totalOvertimeHrs = 0;
@@ -217,7 +223,14 @@ exports.form = (req, res) => {
 
 async function fetchPayrollData(periodId, res) {
   console.log("FETCHPAYROLLDATA: " + periodId);
-  const query = `SELECT * FROM tbl_payrolls WHERE period_id = $1`;
+  const query = `SELECT p.*
+  FROM tbl_payrolls p
+  JOIN tbl_employees e ON p.emp_id = e.id
+  JOIN tbl_periods pd ON p.period_id = pd.id
+  WHERE pd.id = $1
+  AND e.status = 'Active';
+  `;
+
   try {
     let period_list = await populatePeriodDropDown();
 

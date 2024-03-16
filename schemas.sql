@@ -637,7 +637,6 @@ INSERT INTO tbl_employees (id, position_id, gender_id, civil_id, emp_fname, emp_
 (10002, 1004, 2, 1, 'Chaylie', 'Andoc', 'Reyes', '1995-08-20', 'dra@example.com', '987654321', '987-654321-00', '987654321000', '2023-02-20', 'Active', 1),
 (10003, 1004, 1, 1, 'Hedmi', 'Aquino', 'Ramos', '1992-11-10', 'hra@example.com', '456123789', '456-123789-00', '456123789000', '2023-03-10', 'Active', 1),
 (10004, 1002, 1, 3, 'Remy', 'Bugtong', 'Lopez', '1988-03-25', 'rlb@example.com', '654987321', '654-987321-00', '654987321000', '2023-04-05', 'Active', 1),
-
 (10005, 1001, 2, 2, 'Jeshriel', 'Cadungog', 'Lim', '1992-06-21', 'jlc@example.com', '246810999', '231-524624-00', '123456549000', '2023-02-17', 'Active', 1),
 (10006, 1004, 2, 1, 'Bryan', 'Calunsag', 'Cruz', '1995-10-30', 'bcc@example.com', '132524267', '675-758675-00', '654654321000', '2023-06-22', 'Active', 1),
 (10007, 1004, 1, 1, 'Jimboy', 'Catihan', 'Tolentino', '1994-11-17', 'jtc@example.com', '968735462', '454-675893-00', '654123789000', '2023-04-19', 'Active', 1),
@@ -655,7 +654,7 @@ INSERT INTO tbl_contacts (contact_no) VALUES
 ('09234777890'),
 ('09345678991'),
 ('09256789912'),
-('09375678912');
+('09263456789');
 
 -- Linking Employees with Contacts
 INSERT INTO tbl_emp_to_contacts (emp_id, contact_id) VALUES

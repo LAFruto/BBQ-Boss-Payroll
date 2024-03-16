@@ -423,7 +423,7 @@ exports.update = (req, res) => {
 
 exports.delete = (req, res) => {
   const query = `UPDATE tbl_employees SET status = 'Inactive' WHERE id = $1`;
-
+  
   pool.connect((err, connection) => {
     if (err) throw err;
 
